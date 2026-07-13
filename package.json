@@ -1,0 +1,11 @@
+{
+  "name": "bonmot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dev tooling only. The app itself is zero-build static files; nothing here ships.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "validate": "node tools/validate_bank.mjs"
+  }
+}
