@@ -7,7 +7,6 @@ import {
   requeue,
   dueWithinSession,
   INTRO_GAP,
-  newWordBudget,
 } from "../queue.js";
 import { updateStreak, recordOutcome, retention } from "../stats.js";
 import { headwordHtml, bodyHtml } from "./entry.js";
@@ -21,7 +20,11 @@ export function createTodayView(ctx) {
   const { bank, progress, meta, saveProgress, saveMeta } = ctx;
   let session = null;
   let revealed = false;
+  let flagArmed = false;
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
+  // Leech guard: after 3 in-session lapses a card stops requeuing and
+  // waits for tomorrow, so one stubborn word can never trap the session.
+  let sessionLapses = new Map();
 
   function start() {
     const day = today();
@@ -31,7 +34,9 @@ export function createTodayView(ctx) {
     }
     session = buildSession(bank, progress, meta, new Date());
     counts = { reviewed: 0, correct: 0, introduced: 0 };
+    sessionLapses = new Map();
     revealed = false;
+    flagArmed = false;
   }
 
   function current() {
@@ -41,6 +46,7 @@ export function createTodayView(ctx) {
   async function advance() {
     session.index = (session.index || 0) + 1;
     revealed = false;
+    flagArmed = false;
   }
 
   async function onGrade(rating) {
@@ -54,7 +60,11 @@ export function createTodayView(ctx) {
     if (rating === "good") counts.correct++;
     meta.recent = recordOutcome(meta.recent, rating === "good");
     await saveMeta(meta);
-    if (dueWithinSession(next, now)) {
+    if (rating === "again") {
+      sessionLapses.set(item.id, (sessionLapses.get(item.id) || 0) + 1);
+    }
+    const lapses = sessionLapses.get(item.id) || 0;
+    if (dueWithinSession(next, now) && lapses < 3) {
       session.items = requeue(session.items, session.index || 0, item.id);
     }
     await advance();
@@ -98,6 +108,10 @@ export function createTodayView(ctx) {
   }
 
   async function onFlag() {
+    if (!flagArmed) {
+      flagArmed = true;
+      return;
+    }
     const item = current();
     let p = progress.get(item.id) || newProgress(item.id, new Date());
     p = { ...p, state: "buried" };
@@ -129,11 +143,14 @@ export function createTodayView(ctx) {
     const w = bank.byId.get(item.id);
     const n = (session.index || 0) + 1;
     const total = session.items.length;
+    const flagBtn = flagArmed
+      ? `<button class="flag armed" data-act="flag">Tap again to bury this entry</button>`
+      : `<button class="flag" data-act="flag" aria-label="Flag a mistake in this entry">⚑</button>`;
     if (item.kind === "intro") {
       el.innerHTML = `
         <div class="card" data-kind="intro">
           <p class="eyebrow">new word · ${n} of ${total}</p>
-          <button class="flag" data-act="flag" aria-label="Flag a mistake in this entry">⚑</button>
+          ${flagBtn}
           ${headwordHtml(w)}
           <div class="entry-body open">${bodyHtml(w)}</div>
           <div class="actions">
@@ -160,7 +177,12 @@ export function createTodayView(ctx) {
       el.innerHTML = `
         <div class="card" data-kind="review">
           <p class="eyebrow">review · ${n} of ${total}</p>
-          <button class="flag" data-act="flag" aria-label="Flag a mistake in this entry">⚑</button>
+          ${
+            session.dueDeferred > 0 && n === 1
+              ? `<p class="honest">Big day after a break: capped at ${session.items.length} cards, the rest waits safely for tomorrow.</p>`
+              : ""
+          }
+          ${flagBtn}
           ${headwordHtml(w, { withIpa: revealed })}
           ${revealed ? `<div class="entry-body open">${bodyHtml(w)}</div>` : `<p class="recall-hint">Recall the meaning, then reveal.</p>`}
           <div class="actions">
@@ -186,21 +208,26 @@ export function createTodayView(ctx) {
       : null;
     const backupNudge =
       backupAge === null || backupAge > 14
-        ? `<p class="honest warn">No recent backup. Export your progress from the Shelf.</p>`
+        ? `<div class="actions slim"><button class="ghost" data-route="shelf">No recent backup. Export from the Shelf</button></div>`
         : "";
+    const installNudge = !ctx.isStandalone
+      ? `<p class="honest warn">Running in a browser tab, iOS can wipe progress after 7 days unused. Share button, then "Add to Home Screen" makes it stick.</p>`
+      : "";
     const nothingRan = counts.reviewed + counts.introduced === 0;
+    const doneToday = meta.sessionDoneDay === today();
     return `
       <div class="card done">
         <p class="fleuron">❦</p>
-        <h1 class="done-title">${nothingRan ? "Nothing due right now" : "Session complete"}</h1>
-        ${nothingRan ? `<p class="honest">Today's session is done. The next reviews arrive with tomorrow.</p>` : ""}
+        <h1 class="done-title">${nothingRan ? (doneToday ? "Done for today" : "Nothing due right now") : "Session complete"}</h1>
+        ${nothingRan ? `<p class="honest">${doneToday ? "Today's session is finished." : "No reviews are scheduled yet."} The next reviews arrive with tomorrow.</p>` : ""}
         <dl class="stats">
           <div><dt>Reviewed</dt><dd>${counts.reviewed}</dd></div>
           <div><dt>New words</dt><dd>${counts.introduced}</dd></div>
-          <div><dt>Retention</dt><dd>${ret === null ? "–" : ret + "%"}</dd></div>
+          <div><dt>Retention</dt><dd>${ret === null ? "n/a" : ret + "%"}</dd></div>
           <div><dt>Streak</dt><dd>${meta.streakCount || 0} day${(meta.streakCount || 0) === 1 ? "" : "s"}</dd></div>
         </dl>
         ${deferred}
+        ${installNudge}
         ${backupNudge}
       </div>`;
   }
@@ -216,5 +243,5 @@ export function createTodayView(ctx) {
     else if (act === "flag") await onFlag();
   }
 
-  return { render, onAction, restart: start, budgetPreview: () => newWordBudget(0) };
+  return { render, onAction, restart: start };
 }

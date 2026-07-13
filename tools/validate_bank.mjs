@@ -27,6 +27,19 @@ const warnings = [];
 const entries = [];
 const seen = new Map();
 
+// Merge-not-replace: the existing bank is the base. Batches ADD new
+// entries or UPDATE existing ids; nothing already shipped is ever
+// dropped, so user progress (keyed on id) is safe across regenerations.
+const bankPath = join(ROOT, "data", "en.json");
+const existing = new Map();
+try {
+  const prev = JSON.parse(readFileSync(bankPath, "utf8"));
+  for (const w of prev.words) existing.set(w.id, w);
+  console.log(`merging over existing bank: ${existing.size} entries`);
+} catch {
+  console.log("no existing bank, building fresh");
+}
+
 for (const f of readdirSync(batchDir).filter((f) => f.startsWith("batch-") && f.endsWith(".json"))) {
   const arr = JSON.parse(readFileSync(join(batchDir, f), "utf8"));
   for (const e of arr) {
@@ -55,7 +68,7 @@ for (const f of readdirSync(batchDir).filter((f) => f.startsWith("batch-") && f.
     if (e.register && !REGISTERS.has(e.register))
       warnings.push(`${where}: nonstandard register ${e.register}`);
     const text = JSON.stringify(e);
-    if (text.includes("—") || text.includes("–"))
+    if (text.includes("\u2014") || text.includes("\u2013"))
       errors.push(`${where}: EM/EN DASH found (hard fail)`);
     if (seen.has(e.id)) {
       warnings.push(`${where}: duplicate of ${seen.get(e.id)}, skipped`);
@@ -148,17 +161,25 @@ if (!noNet) {
   }
 }
 
-// ---------- emit ----------
+// ---------- emit (merge over the existing bank) ----------
 
-entries.sort((a, b) => a.tier - b.tier || a.id.localeCompare(b.id));
-const tierCounts = [1, 2, 3, 4].map((t) => entries.filter((e) => e.tier === t).length);
+let added = 0;
+let updated = 0;
+for (const e of entries) {
+  if (existing.has(e.id)) updated++;
+  else added++;
+  existing.set(e.id, e);
+}
+const merged = [...existing.values()];
+merged.sort((a, b) => a.tier - b.tier || a.id.localeCompare(b.id));
+const tierCounts = [1, 2, 3, 4].map((t) => merged.filter((e) => e.tier === t).length);
 
-const bank = { lang: "en", version: 1, generatedAt: new Date().toISOString().slice(0, 10), words: entries };
+const bank = { lang: "en", version: 1, generatedAt: new Date().toISOString().slice(0, 10), words: merged };
 mkdirSync(join(ROOT, "data"), { recursive: true });
-writeFileSync(join(ROOT, "data", "en.json"), JSON.stringify(bank, null, 1));
+writeFileSync(bankPath, JSON.stringify(bank, null, 1));
 
 const report = [
-  `entries: ${entries.length}`,
+  `entries: ${merged.length} (${added} added, ${updated} updated, ${merged.length - added - updated} kept)`,
   `tiers 1/2/3/4: ${tierCounts.join("/")}`,
   `ipa adopted from dictionary: ${ipaAdded}`,
   `not in dictionaryapi.dev (${notFound.length}): ${notFound.join(", ")}`,

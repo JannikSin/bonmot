@@ -22,9 +22,9 @@ Installing matters: in a browser tab, iOS deletes site storage after 7 days of d
 
 ## The word bank
 
-500 entries across four difficulty tiers, from serious-journalism hard (tier I) to word-lover rare (tier IV). Every entry: original definitions, two example sentences, an etymology memory hook, roots, synonyms, register. IPA pronunciation appears where verified against a dictionary source. Definitions are original teaching-voice prose (see `docs/SCHEMA.md`); the word bank content is released under CC0.
+458 entries across four difficulty tiers, from serious-journalism hard (tier I) to word-lover rare (tier IV), grown append-only from here. Every entry: original definitions, two example sentences, an etymology memory hook, roots, synonyms, register. IPA pronunciation appears where verified against a dictionary source. Definitions are original teaching-voice prose (see `docs/SCHEMA.md`); the word bank content is released under CC0.
 
-To grow or fix the bank: edit `data/en.json` (ids are stable slugs; progress survives regeneration) or add generated batches and run `npm run validate`.
+To grow or fix the bank: put one or more `batch-*.json` files (arrays of entry objects, schema in `docs/SCHEMA.md`) in any folder and run `node tools/validate_bank.mjs <that-folder>`. The tool validates, cross-checks each new word against a dictionary source, and MERGES into `data/en.json` by id: new ids are added, matching ids are updated, existing entries are never dropped, so user progress (keyed on id) always survives. Small hand fixes can edit `data/en.json` directly, then `npm test` guards the schema.
 
 ## Development
 

@@ -3,7 +3,7 @@
 
 import { retention } from "../stats.js";
 import { isMature } from "../srs.js";
-import { exportState, importState, saveMeta } from "../store.js";
+import { exportState, importState, validateImport, saveMeta } from "../store.js";
 import { esc } from "./entry.js";
 
 export function createShelfView(ctx) {
@@ -58,6 +58,16 @@ export function createShelfView(ctx) {
       return;
     }
     const bankIds = new Set(bank.words.map((w) => w.id));
+    const preview = validateImport(data, bankIds);
+    if (
+      preview.ok &&
+      preview.cleaned.length < progress.size &&
+      !confirm(
+        `This backup has ${preview.cleaned.length} words; you currently have ${progress.size}. Replace anyway?`,
+      )
+    ) {
+      return;
+    }
     const verdict = await importState(data, bankIds);
     if (!verdict.ok) {
       alert(verdict.reason);
@@ -97,7 +107,7 @@ export function createShelfView(ctx) {
       <section class="panel">
         <h2>The record</h2>
         <dl class="stats">
-          <div><dt>Retention</dt><dd>${ret === null ? "–" : ret + "%"}</dd></div>
+          <div><dt>Retention</dt><dd>${ret === null ? "n/a" : ret + "%"}</dd></div>
           <div><dt>Streak</dt><dd>${meta.streakCount || 0}</dd></div>
           <div><dt>Learning</dt><dd>${c.learning}</dd></div>
           <div><dt>Mature</dt><dd>${c.mature}</dd></div>

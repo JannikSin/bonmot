@@ -236,8 +236,28 @@ main {
   border: none;
   color: var(--faded);
   font-size: 16px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 10px;
   cursor: pointer;
+}
+.flag.armed {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--madder);
+  border: 1px solid var(--madder);
+  border-radius: 8px;
+}
+
+.actions.slim {
+  margin-top: 20px;
+  padding-top: 0;
+}
+.actions.slim button {
+  font-size: 14px;
+  min-height: 44px;
+  padding: 10px;
 }
 
 /* ---------- actions ---------- */

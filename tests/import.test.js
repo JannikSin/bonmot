@@ -57,6 +57,47 @@ test("invalid dates fall back instead of producing NaN due", () => {
   assert.ok(!Number.isNaN(new Date(v.cleaned[0].card.due).getTime()));
 });
 
+test("meta is sanitized: markup strings and wrong types cannot pass", () => {
+  const p = goodPayload();
+  p.meta = {
+    startTier: "<img src=x onerror=alert(1)>",
+    streakCount: "999<script>",
+    recent: "not-an-array",
+    flagged: [{ evil: true }, "legit-word", 42],
+    lastBackup: "garbage-date",
+    streakLastDay: "<b>2026</b>",
+    unknownKey: "dropped",
+  };
+  const v = validateImport(p, bankIds);
+  assert.ok(v.ok);
+  assert.equal(v.meta.startTier, 2);
+  assert.equal(v.meta.streakCount, 0);
+  assert.deepEqual(v.meta.recent, []);
+  assert.deepEqual(v.meta.flagged, ["legit-word"]);
+  assert.ok(!("lastBackup" in v.meta));
+  assert.ok(!("streakLastDay" in v.meta));
+  assert.ok(!("unknownKey" in v.meta));
+});
+
+test("valid meta survives sanitization intact", () => {
+  const p = goodPayload();
+  p.meta = {
+    startTier: 3,
+    placementDone: true,
+    streakCount: 12,
+    streakLastDay: "2026-07-12",
+    recent: [1, 0, 1],
+    flagged: ["alpha"],
+  };
+  const v = validateImport(p, bankIds);
+  assert.equal(v.meta.startTier, 3);
+  assert.equal(v.meta.placementDone, true);
+  assert.equal(v.meta.streakCount, 12);
+  assert.equal(v.meta.streakLastDay, "2026-07-12");
+  assert.deepEqual(v.meta.recent, [1, 0, 1]);
+  assert.deepEqual(v.meta.flagged, ["alpha"]);
+});
+
 test("unknown state strings are coerced to learning", () => {
   const p = goodPayload();
   p.progress[0].state = "hacked";

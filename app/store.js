@@ -44,13 +44,6 @@ export async function saveProgress(record) {
   await tx(db, "progress", "readwrite", (s) => s.put(record));
 }
 
-export async function saveProgressBulk(records) {
-  const db = await openDb();
-  await tx(db, "progress", "readwrite", (s) => {
-    for (const r of records) s.put(r);
-  });
-}
-
 export async function loadMeta() {
   const db = await openDb();
   const val = await tx(db, "meta", "readonly", (s) => s.get("meta"));
@@ -142,29 +135,73 @@ export function validateImport(data, bankIds) {
       },
     });
   }
-  const meta = data.meta && typeof data.meta === "object" ? data.meta : {};
+  const meta = sanitizeMeta(data.meta);
   return { ok: true, cleaned, meta, dropped };
 }
 
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Meta gets the same distrust as progress: only known keys, coerced
+ *  and clamped, so a crafted backup can neither inject markup nor
+ *  wedge the stats code with wrong types. */
+function sanitizeMeta(raw) {
+  const m = raw && typeof raw === "object" ? raw : {};
+  const out = {};
+  out.startTier = num(m.startTier, 1, 4, 2);
+  out.placementDone = !!m.placementDone;
+  out.streakCount = num(m.streakCount, 0, 1e6, 0);
+  out.sessionsCompleted = num(m.sessionsCompleted, 0, 1e6, 0);
+  out.introUsedToday = num(m.introUsedToday, 0, 100, 0);
+  for (const k of ["streakLastDay", "streakGraceDay", "sessionDoneDay", "introDay"]) {
+    if (typeof m[k] === "string" && DAY_RE.test(m[k])) out[k] = m[k];
+  }
+  if (m.lastBackup) {
+    const d = validDate(m.lastBackup, null);
+    if (d) out.lastBackup = d;
+  }
+  out.recent = Array.isArray(m.recent)
+    ? m.recent.slice(-200).map((v) => (v ? 1 : 0))
+    : [];
+  out.flagged = Array.isArray(m.flagged)
+    ? m.flagged.filter((v) => typeof v === "string").slice(0, 1000)
+    : [];
+  return out;
+}
+
 /**
- * Atomic import: snapshot current state, replace, restore on failure.
+ * Atomic import: both stores replaced in ONE transaction, so a failure
+ * anywhere leaves the previous state untouched. Refuses a valid-format
+ * file that would wipe existing progress (the mis-picked-file case).
  */
 export async function importState(data, bankIds) {
   const verdict = validateImport(data, bankIds);
   if (!verdict.ok) return verdict;
-  const snapProgress = await loadProgress();
-  const snapMeta = await loadMeta();
+  const current = await loadProgress();
+  if (verdict.cleaned.length === 0 && current.size > 0) {
+    return {
+      ok: false,
+      reason:
+        "That backup contains no usable records; keeping your current progress.",
+    };
+  }
+  const currentMeta = await loadMeta();
+  const db = await openDb();
   try {
-    const db = await openDb();
-    await tx(db, "progress", "readwrite", (s) => {
-      s.clear();
-      for (const r of verdict.cleaned) s.put(r);
+    await new Promise((resolve, reject) => {
+      const t = db.transaction(["progress", "meta"], "readwrite");
+      const p = t.objectStore("progress");
+      p.clear();
+      for (const r of verdict.cleaned) p.put(r);
+      t.objectStore("meta").put(
+        { ...verdict.meta, lastBackup: currentMeta.lastBackup },
+        "meta",
+      );
+      t.oncomplete = resolve;
+      t.onerror = () => reject(t.error);
+      t.onabort = () => reject(t.error);
     });
-    await saveMeta({ ...verdict.meta, lastBackup: snapMeta.lastBackup });
-    return verdict;
-  } catch (err) {
-    await saveProgressBulk([...snapProgress.values()]);
-    await saveMeta(snapMeta);
-    return { ok: false, reason: "Import failed, previous progress restored." };
+    return { ...verdict, replaced: current.size };
+  } catch {
+    return { ok: false, reason: "Import failed, previous progress untouched." };
   }
 }

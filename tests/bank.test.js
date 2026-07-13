@@ -28,8 +28,8 @@ test("ids are unique stable slugs", { skip: !exists }, () => {
 
 test("no em or en dashes anywhere", { skip: !exists }, () => {
   const text = JSON.stringify(bank);
-  assert.ok(!text.includes("—"), "em dash found");
-  assert.ok(!text.includes("–"), "en dash found");
+  assert.ok(!text.includes("\u2014"), "em dash found");
+  assert.ok(!text.includes("\u2013"), "en dash found");
 });
 
 test("every entry carries the required teaching apparatus", { skip: !exists }, () => {

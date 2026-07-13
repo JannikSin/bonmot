@@ -67,6 +67,11 @@ export function createPlacementView(ctx) {
     el.innerHTML = `
       <div class="card" data-kind="placement">
         <p class="eyebrow">placement · ${walk.length + 1} of ${TRIALS}</p>
+        ${
+          walk.length === 0
+            ? `<p class="honest">${TRIALS} quick words, about three minutes. This finds where you start; nothing to configure after.</p>`
+            : ""
+        }
         ${headwordHtml(word, { withIpa: false })}
         <p class="recall-hint">Could you define it, right now?</p>
         <div class="actions">

@@ -89,6 +89,11 @@ async function boot() {
   }
 
   viewEl.addEventListener("click", async (e) => {
+    const routeBtn = e.target.closest("[data-route]");
+    if (routeBtn) {
+      go(routeBtn.dataset.route);
+      return;
+    }
     const btn = e.target.closest("[data-act]");
     if (!btn) return;
     const act = btn.dataset.act;

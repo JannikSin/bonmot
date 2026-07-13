@@ -7,6 +7,8 @@
 // Everything is precached on install so the very first offline open
 // (a no-signal train) already works.
 
+// BUMP this whenever anything under vendor/ or icons/ changes; those
+// paths are cache-first and will serve stale forever otherwise.
 const CACHE_VERSION = "bonmot-v1";
 
 const SHELL = [
