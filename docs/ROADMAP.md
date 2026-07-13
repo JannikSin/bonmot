@@ -12,4 +12,4 @@ Ten steps ahead, deliberately NOT built in v1. Each waits for its trigger; nothi
 7. **Writing integration.** "Use three of this week's words in your next script" prompt on the done screen.
 8. **Root-family drills.** One Latin root unlocks ten words; morphology mode.
 9. **Cross-device sync.** Needs a private data repo + PAT (mise pattern: data repo stays PRIVATE). Council before building; it is real money-adjacent effort and a security surface.
-10. **daily.py train-sheet line.** One line in Crystal's morning sheet once the habit exists. Explicitly not before.
+10. **daily.py train-sheet line. DONE at launch (2026-07-13).** The Loyalist reversed the original deferral: the morning-brief line is the trigger that helps the habit form, not a reward for it existing. One line in Crystal's daily.py now points at the train session.
