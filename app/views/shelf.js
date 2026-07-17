@@ -7,7 +7,14 @@ import { exportState, importState, validateImport, saveMeta } from "../store.js"
 import { esc } from "./entry.js";
 
 export function createShelfView(ctx) {
-  const { bank, progress, meta, isStandalone, onPlacementRerun, refresh } = ctx;
+  const { bank, reviewBank, progress, meta, isStandalone, onPlacementRerun, refresh } = ctx;
+
+  // Import keeps knowledge (kn:) progress alive: its ids must be in the
+  // valid-id set or validateImport would drop them as unknown.
+  const allBankIds = new Set([
+    ...bank.words.map((w) => w.id),
+    ...((reviewBank && reviewBank.cards) || []).map((c) => c.id),
+  ]);
 
   function countStates() {
     let learning = 0;
@@ -15,6 +22,7 @@ export function createShelfView(ctx) {
     let known = 0;
     let buried = 0;
     for (const p of progress.values()) {
+      if (p.id.startsWith("kn:")) continue; // vocab stats only
       if (p.state === "known") known++;
       else if (p.state === "buried") buried++;
       else if (isMature(p)) mature++;
@@ -57,7 +65,7 @@ export function createShelfView(ctx) {
       alert("That file is not valid JSON.");
       return;
     }
-    const bankIds = new Set(bank.words.map((w) => w.id));
+    const bankIds = allBankIds;
     const preview = validateImport(data, bankIds);
     if (
       preview.ok &&
@@ -68,7 +76,7 @@ export function createShelfView(ctx) {
     ) {
       return;
     }
-    const verdict = await importState(data, bankIds);
+    const verdict = await importState(data, allBankIds);
     if (!verdict.ok) {
       alert(verdict.reason);
       return;

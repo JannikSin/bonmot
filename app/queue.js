@@ -39,7 +39,11 @@ export function pickNewWords(bank, progressMap, startTier, count) {
  * @returns {{items: Array<{kind: string, id: string}>, dueTotal: number, dueDeferred: number}}
  */
 export function buildSession(bank, progressMap, meta, now) {
-  const learning = [...progressMap.values()].filter((p) => p.state === "learning");
+  // Knowledge cards (kn: ids) share the progress store but ride the
+  // separate Review deck, so keep them out of the vocab session.
+  const learning = [...progressMap.values()].filter(
+    (p) => p.state === "learning" && !p.id.startsWith("kn:"),
+  );
   const due = learning
     .filter((p) => isDue(p, now))
     .sort((a, b) => new Date(a.card.due) - new Date(b.card.due));

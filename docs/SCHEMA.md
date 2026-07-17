@@ -34,6 +34,31 @@ Any schema change updates this doc in the same commit.
 - `tier`: 1 (serious-journalism hard) to 4 (word-lover rare).
 - Reserved for future languages, all nullable and unused in English: `gender`, `article`, `translation`. The card model is prompt/answer/direction; English v1 always renders word→definition. French will add a direction switch and use these fields: a card-engine extension, not a data rewrite.
 
+## Review deck: `data/review.json` (second-brain knowledge cards)
+
+```json
+{
+  "app": "bonmot-review",
+  "version": 1,
+  "generatedAt": "2026-07-17",
+  "cards": [
+    {
+      "id": "kn:ab12cd34ef:0",
+      "type": "qa | cloze",
+      "prompt": "question, or cloze sentence with ___ for the blank",
+      "answer": "the answer, or the blanked term",
+      "source": "PURPL/RDE/Thermal.md#Baseline results"
+    }
+  ]
+}
+```
+
+Built by `tools/review_import.mjs` from David's `#review`-tagged notes (pipeline: `review_scan.mjs` -> approval queue markdown -> `review_import.mjs`). Same merge-not-replace discipline as the word bank: cards are added or updated by id, never dropped, so progress survives regeneration.
+
+- `id`: `kn:<blockHash>:<n>`. `blockHash` = sha256(source path + normalized block text). Unchanged source yields the same ids (idempotent scan/import); changed source yields new ids and the old cards remain (never dropped). The `kn:` prefix (colon) can never collide with a word-bank slug (`^[a-z][a-z-]*$`, no colon), which is what keeps the two decks in one progress store from mixing.
+- `type`: `qa` (prompt is a question) or `cloze` (prompt is a sentence with `___`). Both render as prompt then reveal-answer; the app only uses `type` for the eyebrow label.
+- Progress for these cards lives in the SAME `progress` store below, keyed by the `kn:` id. The vocab session (`app/queue.js`) filters `kn:` ids out; the Review deck (`app/views/review.js`) filters them in.
+
 ## Progress record (IndexedDB `progress` store, keyPath `id`)
 
 ```json

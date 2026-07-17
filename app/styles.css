@@ -207,6 +207,29 @@ main {
   margin-top: 10px;
 }
 
+/* Review deck (second-brain) cards: prompt/answer, no dictionary apparatus. */
+.review-prompt {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(24px, 6vw, 34px);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  overflow-wrap: anywhere;
+  margin-top: 2vh;
+}
+.review-answer {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--paper);
+}
+.review-source {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--faded);
+  margin-top: 14px;
+  overflow-wrap: anywhere;
+}
+
 .etymology,
 .syn {
   margin-top: 16px;
