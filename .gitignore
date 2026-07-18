@@ -2,3 +2,4 @@ node_modules/
 *.progress.json
 bonmot-backup-*.json
 report.txt
+CLAUDE.local.md
