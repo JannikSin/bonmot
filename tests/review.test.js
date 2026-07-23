@@ -185,3 +185,48 @@ test("deck split: kn: cards ride Review, not the vocab session", () => {
   assert.ok(review.items.some((i) => i.id === "kn:cccccccccc:0"));
   assert.ok(!review.items.some((i) => i.id === "w0"), "review session must exclude vocab");
 });
+
+test("deckId filter: a session only pulls its own deck's cards", () => {
+  const reviewBank = {
+    cards: [
+      { id: "kn:rde:001", deck: "rde", type: "qa", prompt: "a", answer: "1", source: "s" },
+      { id: "kn:spacex:001", deck: "spacex", type: "qa", prompt: "b", answer: "2", source: "s" },
+    ],
+    byId: new Map(),
+  };
+  reviewBank.byId = new Map(reviewBank.cards.map((c) => [c.id, c]));
+  const progress = new Map();
+
+  const rde = buildReviewSession(reviewBank, progress, T0, "rde");
+  assert.deepEqual(
+    rde.items.map((i) => i.id),
+    ["kn:rde:001"],
+  );
+  const all = buildReviewSession(reviewBank, progress, T0);
+  assert.equal(all.items.length, 2, "null deckId pulls every deck");
+});
+
+test("shipped data/review.json is valid: kn: ids, known decks, unique, no dashes", () => {
+  const bank = JSON.parse(readFileSync(join(import.meta.dirname, "..", "data", "review.json"), "utf8"));
+  const deckIds = new Set((bank.decks || []).map((d) => d.id));
+  deckIds.add("brain"); // default deck needs no manifest entry
+  const seen = new Set();
+  const EM = String.fromCharCode(0x2014);
+  const EN = String.fromCharCode(0x2013);
+  for (const c of bank.cards) {
+    assert.ok(c.id.startsWith("kn:"), `id must be kn: ${c.id}`);
+    assert.ok(!seen.has(c.id), `duplicate id ${c.id}`);
+    seen.add(c.id);
+    const deck = c.deck || "brain";
+    assert.ok(deckIds.has(deck), `card ${c.id} references unknown deck ${deck}`);
+    for (const f of ["type", "prompt", "answer", "source"]) {
+      assert.ok(c[f], `card ${c.id} missing ${f}`);
+    }
+    const blob = c.prompt + c.answer + c.source;
+    assert.ok(!blob.includes(EM) && !blob.includes(EN), `dash in card ${c.id}`);
+  }
+  for (const d of bank.decks || []) {
+    const blob = d.label + d.blurb;
+    assert.ok(!blob.includes(EM) && !blob.includes(EN), `dash in deck ${d.id}`);
+  }
+});

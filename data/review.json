@@ -1,6 +1,1267 @@
 {
  "app": "bonmot-review",
  "version": 1,
- "generatedAt": "2026-07-17",
- "cards": []
+ "generatedAt": "2026-07-23",
+ "decks": [
+  {
+   "id": "rde",
+   "label": "RDE fundamentals",
+   "blurb": "The core detonation and heat transfer vocabulary. Learn these first; every paper assumes them."
+  },
+  {
+   "id": "spacex",
+   "label": "SpaceX interview prep",
+   "blurb": "Behavioral and technical questions, mapped to your HADES, RDE, and FEA work."
+  },
+  {
+   "id": "pv-theuerkauf",
+   "label": "Paper: Theuerkauf 2013",
+   "blurb": "Pre-reading vocab for the AFIT H2/air RDE heat-exchanger thesis."
+  },
+  {
+   "id": "pv-roy",
+   "label": "Paper: Roy 2016 NETL",
+   "blurb": "Pre-reading vocab for the effective-h versus thermocouple template paper."
+  },
+  {
+   "id": "pv-pizzo",
+   "label": "Paper: Pizzo IHCP",
+   "blurb": "Pre-reading vocab for the inverse heat conduction method paper."
+  },
+  {
+   "id": "pv-braun",
+   "label": "Paper: Braun 2018 ROM",
+   "blurb": "Pre-reading vocab for the reduced-order RDC heat transfer model."
+  },
+  {
+   "id": "pv-hades",
+   "label": "Paper: HADES 2026",
+   "blurb": "Pre-reading vocab for your own engine paper."
+  },
+  {
+   "id": "pv-deimos",
+   "label": "Paper: Deimos 2026",
+   "blurb": "Pre-reading vocab for the sister methane engine paper."
+  },
+  {
+   "id": "pv-fatigue",
+   "label": "Paper: Fatigue sweep",
+   "blurb": "Pre-reading vocab for the ANSYS thermal-fatigue sweep report."
+  },
+  {
+   "id": "brain",
+   "label": "Second brain",
+   "blurb": "Cards from your #review notes across the vaults."
+  }
+ ],
+ "cards": [
+  {
+   "id": "kn:rde:001",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Detonation vs deflagration",
+   "answer": "A deflagration is ordinary flame: it burns subsonically, heat conducts ahead to ignite the next layer, and pressure stays roughly constant. A detonation is a supersonic combustion front driven by a shock wave that compresses and ignites the mixture, raising pressure sharply across the front. Detonation releases the same chemical energy far faster and with a pressure gain.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:002",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Detonation wave",
+   "answer": "A shock wave tightly coupled to a reaction zone: the shock heats the gas enough to ignite it, and the heat release drives the shock forward. The two travel together as a self sustaining supersonic front, moving at thousands of meters per second in typical fuel and oxidizer mixtures.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:003",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Chapman-Jouguet (CJ) condition",
+   "answer": "The reference state of an ideal, self sustaining detonation, where the burned gas leaves the reaction zone moving exactly at its local speed of sound relative to the wave. It fixes the minimum stable detonation speed and gives the peak CJ pressure and temperature that the rest of the cycle decays from.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:004",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "ZND structure",
+   "answer": "The Zeldovich, von Neumann, Doring model of what is inside a detonation: an almost infinitely thin shock jump that spikes pressure, followed by a finite length reaction zone where the compressed gas actually burns down to the CJ state. It is the standard one dimensional picture used to compute detonation properties.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:005",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Detonation cell size (lambda)",
+   "answer": "The width of the diamond shaped pattern a detonation wave traces on a soot foil, a fingerprint of how easily a given mixture detonates. Smaller lambda means a more detonable mixture. An RDE channel gap and diameter are sized as multiples of lambda so the wave has room to stay stable.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:006",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Deflagration to detonation transition (DDT)",
+   "answer": "The runaway process by which an ordinary flame accelerates, generates shocks ahead of itself, and abruptly flips into a detonation. Engineers either exploit it to start a detonation or design against it where an unplanned detonation would be dangerous.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:007",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Equivalence ratio (Phi)",
+   "answer": "The actual fuel to oxidizer ratio divided by the exact stoichiometric ratio. Phi equal to 1 is stoichiometric, Phi above 1 is fuel rich, Phi below 1 is fuel lean. It is the single knob that sets flame temperature, detonability, and how much unburned propellant is left over.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:008",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Specific impulse (Isp)",
+   "answer": "Thrust produced per unit weight flow of propellant per second, measured in seconds. It is the fuel economy of a rocket engine: a higher Isp means more thrust for the same propellant burned. Detonation engines chase higher Isp through their pressure gain.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:009",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Characteristic velocity (c-star)",
+   "answer": "A performance number that measures how well the combustion chamber alone turns propellant into hot, high pressure gas, independent of the nozzle. It depends only on the propellant chemistry and chamber conditions, and it feeds directly into mass flow and thrust calculations.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:010",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Pressure gain combustion",
+   "answer": "Any combustion mode that leaves the gas at a higher stagnation pressure than it entered with, instead of losing pressure the way constant pressure burning does. It is the core thermodynamic reason to build a rotating detonation engine at all.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:011",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Annulus and center body",
+   "answer": "The RDE combustion channel is a ring shaped gap, the annulus, between an outer wall and an inner cylinder called the center body. The detonation wave races around this ring. The center body typically absorbs more heat than the outer wall because the flow impinges on it more directly.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:012",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Fill height and refill zone",
+   "answer": "After the detonation wave passes a point on the wall, fresh propellant refills the channel behind it before the wave comes around again. The axial height this fresh charge reaches is the fill height, and the cooler refill zone gives the wall a brief regenerative style cooling window each cycle.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:013",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Wave speed and wave count",
+   "answer": "How fast the detonation travels around the annulus, and how many waves are present at once. Multiple co-rotating waves raise the apparent frequency and can make a naive single-wave speed estimate come out too high, so engineers measure both directly with spaced pressure transducers.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:014",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Adiabatic wall (recovery) temperature",
+   "answer": "The temperature a wall would reach if it exchanged no net heat with the flow, set by the gas stagnation temperature minus a small recovery correction for the boundary layer. It is the true driving temperature for wall heat flux: flux is proportional to this recovery temperature minus the actual wall temperature, not to the raw flame temperature.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:015",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Heat transfer coefficient (h)",
+   "answer": "The proportionality constant in q double prime equals h times the gas to wall temperature difference. It lumps all the messy convection physics into one number in watts per square meter kelvin. It is not a material constant: it depends on flow conditions and on which reference gas temperature you pair it with.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:016",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Heat flux (q double prime)",
+   "answer": "The rate of heat crossing a unit area of surface, in watts per square meter. In an RDE it is fiercely non-uniform: peak instantaneous flux near the channel base can exceed several megawatts per square meter, while the cycle average and the axial tail are far lower.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:017",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Nusselt, Stanton, Prandtl, Reynolds numbers",
+   "answer": "The dimensionless groups of convective heat transfer. Reynolds sets whether flow is laminar or turbulent, Prandtl compares momentum to thermal diffusion in the fluid, Nusselt is dimensionless heat transfer coefficient, and Stanton normalizes convective flux against the flow's own heat carrying capacity. Correlations tie them together to predict h.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:018",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Thermal diffusivity (alpha)",
+   "answer": "A material property, conductivity divided by density times specific heat, that measures how fast a temperature disturbance spreads through a solid rather than how much heat it stores. It governs how quickly a surface heating event shows up at a thermocouple buried a few millimeters deep.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:019",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Semi-infinite solid approximation",
+   "answer": "Treating a wall as if it extends infinitely deep, valid for short times before the heat pulse reaches the far side. It gives a clean closed form linking surface temperature history to surface heat flux, and it underlies fast-response heat flux gauge analysis in RDE testing.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:020",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Regenerative, film, and heat-sink cooling",
+   "answer": "Three ways to keep an engine wall alive. Regenerative routes propellant through wall passages to carry heat away before injection. Film cooling blankets the wall in a cooler gas layer. Heat sink cooling adds no cooling at all and just lets a thick wall soak up heat for a short test. HADES is heat sink.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:021",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Lower heating value (LHV)",
+   "answer": "The chemical energy released per unit mass of fuel when it burns and the product water stays vapor, in megajoules per kilogram. Wall heat loads are often reported as a percentage of the propellant LHV, which lets you compare rigs of different size and mass flow on equal footing.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:rde:022",
+   "deck": "rde",
+   "type": "qa",
+   "prompt": "Inverse heat conduction problem (IHCP)",
+   "answer": "Working backward from a temperature measured inside a wall to infer the surface heat flux and temperature you could not measure directly. It is mathematically unstable because reversing diffusion amplifies noise, so real methods need care to stay usable. It is the backbone of the HADES Phase 1 back-calculation of h.",
+   "source": "PURPL/30 Research/fundamentals_reading_path.md"
+  },
+  {
+   "id": "kn:spacex:001",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Walk me through a project you are proud of.",
+   "answer": "Lead with HADES: an H2/air rotating detonation engine where you own the thermal side. State the goal in one line (validate the thermal model by back-calculating gas-side h from thermocouple data), your specific contribution, and the result. Keep it to design, test, iterate: what you predicted, what the data said, and what you changed. Numbers over adjectives.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:002",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What is the difference between deflagration and detonation, and why does it matter for an engine?",
+   "answer": "Deflagration is subsonic flame at roughly constant pressure; detonation is a supersonic shock-coupled front that raises pressure across it. It matters because detonation gives a pressure gain, which raises thermodynamic efficiency and specific impulse over a conventional constant-pressure combustor. The cost is severe unsteady heat loads and hardware stress.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:003",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "How would you measure heat transfer to a wall you cannot instrument on the hot side?",
+   "answer": "Bury thermocouples at known depths in the wall, record the temperature rise during a hotfire, then solve the inverse heat conduction problem to march back to the surface flux and temperature. From surface flux and the gas-to-wall temperature difference you back out an effective h. Flag that the inverse step amplifies noise, so sensor depth accuracy and placement close to the hot face matter most.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:004",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "A test result disagrees with your model. What do you do?",
+   "answer": "Trust the data first, then find why. Check instrumentation and reduction before blaming physics: sensor calibration, depth, sign conventions, boundary conditions. Then list model assumptions that could close the gap, rank by likely impact, and change one thing at a time. Example: gas radiation inflated your fitted h by about 31 percent until it was accounted for. The loop is the point, not being right the first time.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:005",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Why does a rocket engine wall get so hot, and what sets the heat flux?",
+   "answer": "Hot combustion gas drives convective flux proportional to h times the recovery temperature minus the wall temperature, plus radiation. The recovery temperature, not the raw flame temperature, is the true driver. Flux is highly non-uniform: in an RDE the channel base can see megawatts per square meter while the axial tail is far cooler.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:006",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Tell me about a time you found a mistake in your own work.",
+   "answer": "Pick a concrete case: a hard-coded value, a wrong boundary condition, or a unit slip you caught by sanity-checking magnitudes. Show the habit, not the heroics: you cross-checked against an independent estimate (a second code, a hand calc, or literature) and the disagreement flagged the bug. SpaceX wants engineers who audit themselves.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:007",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "How do you decide a mesh or a result is trustworthy?",
+   "answer": "Convergence and cross-checks. Refine the mesh until the quantity of interest stops moving within tolerance, then confirm the answer is physical: right order of magnitude, right trends, and agreement with an independent method or published data. A pretty contour plot that nobody sanity-checked is not a result.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:008",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What is factor of safety, and how is safety on life different from safety on stress?",
+   "answer": "Factor of safety is the margin above the minimum a design must survive. On stress it asks how much higher the load could go before failure at a fixed life. On life it divides the predicted cycles to failure by a knockdown to get a shorter design life. The same number under the two conventions does not mean they agree, because the stress to life curve is steep.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:009",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Why detonation engines if they are so hard to cool?",
+   "answer": "Because the pressure gain buys efficiency and specific impulse a constant-pressure engine cannot reach, and the hardware is mechanically simpler, no turbopump-fed high-pressure chamber needed to get the same effective cycle. The bet is that the thermal and stability problems are solvable engineering, and characterizing wall heat loads, exactly your work, is how you retire that risk.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:010",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Describe your analysis workflow for a thermal-structural problem.",
+   "answer": "Chain it: a transient thermal analysis gives the time-varying temperature field, that field feeds a static structural analysis for stress and strain, and the cyclic strain feeds a strain-life fatigue estimate. Watch the traps: fatigue tools often ignore temperature-dependent properties, so you correct room-temperature life down for hot strength loss rather than trusting the default.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:011",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What would you do in your first month if you did not know the tool we use?",
+   "answer": "Learn it against a problem I already understand. Reproduce a known result, mine or published, in the new tool so I can trust my setup, then move to the real task. I did this cross-checking a thermal fit in a second code and in OpenFOAM: same problem, independent tool, and the agreement built confidence before I relied on it.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:012",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Why SpaceX?",
+   "answer": "Be specific and honest: the pace of design, test, iterate on real hardware, and that the thermal and combustion problems you already work on map onto their engines. Tie it to the goal chain you actually have: learn aerospace, design and simulate and build, contribute to flight hardware. Avoid platitudes; name the work.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:013",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "How do you handle being wrong in a design review?",
+   "answer": "Separate ego from the design. If someone finds a hole, the design got better and that is the goal. State what you missed, what you will change, and by when. Bring your own risk list to the review so the hard questions are ones you already flagged, not ones that ambush you.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:014",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What is the hardest tradeoff you have made on a project?",
+   "answer": "Pick one with real tension: fidelity versus turnaround, for example choosing a reduced-order model that runs in minutes over a full simulation that runs in hundreds of hours, accepting a known percent error because it let you sweep many cases. Explain how you bounded the error so the fast answer was still trustworthy.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:015",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "How do you prioritize when everything feels urgent?",
+   "answer": "By what retires the most risk or unblocks the most people. I keep the goal explicit, define what done means for each task, and do the one that most changes the decision downstream first. Short hard-focused blocks beat scattered multitasking, and I write down what I park so nothing silently drops.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:016",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Explain a technical concept to someone outside your field.",
+   "answer": "Demonstrate it live: pick one from your work, like why an engine wall survives a flame hotter than its melting point (short exposure plus a thick heat-sink wall soaking the pulse), and explain it with an everyday analogy and no jargon. The skill they are testing is whether you can align a team, not whether you know the term.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:017",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What did you learn from a project that failed or stalled?",
+   "answer": "Show growth, not blame. Name what stalled, the root cause, and the process change you made so it does not repeat: a check you now run, an assumption you now verify, a review you now ask for earlier. Failures that produce a durable habit are worth more than clean successes.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:018",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "How would you reduce the wall heat load in an RDE without active cooling?",
+   "answer": "Lever the geometry and operating point: run leaner to drop flame temperature, use the fresh-charge refill zone for regenerative-style cooling, thicken or pick a higher-diffusivity wall to spread the pulse, and shorten test duration for a heat-sink design. Quantify each: even a modest drop in recovery temperature moves flux directly since flux scales with the gas-to-wall difference.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:019",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "What questions do you have for us?",
+   "answer": "Ask about the work and the loop: how fast does a design change reach a test stand, what does an intern own end to end, and how are analysis predictions checked against test data here. Good questions show you think in terms of design, test, iterate, which is how they build.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:spacex:020",
+   "deck": "spacex",
+   "type": "qa",
+   "prompt": "Tell me about working on a team where you disagreed technically.",
+   "answer": "Pick a real disagreement, describe how you resolved it with data rather than volume: you each stated the assumption behind your position, found the one that could be tested cheaply, and let the result decide. End with what you did once the data pointed away from your view.",
+   "source": "SpaceX interview prep"
+  },
+  {
+   "id": "kn:pv-theuerkauf:001",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Calorimetry (coolant heat balance)",
+   "answer": "Measuring the heat a cooled wall absorbs by the temperature rise of the coolant flowing through it: heat rate equals coolant mass flow times specific heat times outlet minus inlet temperature. It gives a reliable wall-integrated average heat rate, which Theuerkauf reports as a percentage of propellant LHV.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:002",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Percent LHV heat loss",
+   "answer": "Reporting wall heat absorption as a fraction of the propellant lower heating value, so rigs of different size compare fairly. Theuerkauf found the outer wall took about 2.5 percent and the inner wall about 7.1 percent of LHV, and later work put total wall loss near 20 percent for steady detonation.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:003",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Inner versus outer wall asymmetry",
+   "answer": "The center body absorbed roughly three times the heat of the outer wall in Theuerkauf's rig, because detonation products impinge more directly on the convergent inner surface near the base. It is a warning that outer-wall instrumentation alone does not tell you the inner body thermal load.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:004",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Axial heat flux gradient",
+   "answer": "Heat flux is far from uniform along the channel length: the base near the injection plane can see about four times the wall-average flux, falling off sharply toward the exit. It means a single embedded thermocouple samples a local flux, not a representative wall average.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:005",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "RTD thin-film heat flux gauge",
+   "answer": "A resistance temperature detector on Kapton tape sampling surface temperature at up to 1 megahertz, used on the uncooled companion rig to catch detonation-frequency heat pulses. Its surface temperature history is converted to instantaneous flux through a semi-infinite solid model.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:006",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Semi-infinite solid heat flux inversion",
+   "answer": "Turning a fast surface temperature record into instantaneous heat flux using the closed-form solution for a wall that behaves as infinitely deep over short times. It is how the RTD signal becomes a flux time-history without instrumenting the back face.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:007",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Quasi-steady wall temperature",
+   "answer": "The near-constant surface temperature an uncooled wall settles to within a short run once heat in roughly balances conduction away, about 250 degrees Celsius at one axial station in Theuerkauf's uncooled runs. It is what makes a single equilibrium reading usable for back-calculating h.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:008",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Detonation wave speed vs Chapman-Jouguet",
+   "answer": "Measured wave speeds above 3000 meters per second exceeded the H2/air CJ value near 1960 meters per second, hinting at preheating, elevated inlet conditions, or multiple simultaneous waves. It is a reminder to measure wave count directly before comparing heat pulse data to single-wave theory.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:009",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Multiple co-rotating waves",
+   "answer": "More than one detonation wave traveling around the annulus at once, which doubles or triples the apparent frequency and speed inferred from a fixed sensor. The calorimetric LHV numbers still hold, but the instantaneous flux timing does not match a single-wave assumption.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:010",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Gauge life limitation",
+   "answer": "The uncooled RTD gauges degraded quickly, so Theuerkauf drew no firm steady-state conclusions from them; the 250 degree and peak flux figures are early-time transients. It flags that sensor durability, not just accuracy, limits long uncooled measurements.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:011",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Peak instantaneous versus average flux",
+   "answer": "The base can spike above 9 megawatts per square meter for an instant as the wave passes, while the cycle-average and wall-average flux are far lower, in the range below one megawatt per square meter. Confusing the two overstates the steady thermal load by an order of magnitude.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:012",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "SS316 wall thermal properties",
+   "answer": "The rig wall is 316 stainless with conductivity near 16 watts per meter kelvin and diffusivity near 4 times ten to the minus six square meters per second at operating temperature. These set how fast the wall responds and are the inputs any flux inversion needs.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:013",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Weak equivalence ratio effect on percent LHV",
+   "answer": "Theuerkauf found equivalence ratio had little effect on heat absorption as a fraction of LHV, so the LHV-normalized framework transfers across Phi. Absolute flux still scales with total fuel flow, so this does not mean flux itself is insensitive to Phi.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-theuerkauf:014",
+   "deck": "pv-theuerkauf",
+   "type": "qa",
+   "prompt": "Atmospheric back-pressure caveat",
+   "answer": "The tests ran near ambient chamber pressure, while engines like HADES run around 10 bar. Since convective flux scales roughly with mass flux and pressure, Theuerkauf's raw heat flux numbers are a lower bound, not a ceiling, for a pressurized engine.",
+   "source": "PURPL/20 Papers/paper-theuerkauf-2013-rde-heat-exchanger.md"
+  },
+  {
+   "id": "kn:pv-roy:001",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Rotating detonation combustor (RDC/RDE)",
+   "answer": "A combustor where a detonation wave (a supersonic combustion front locked to a shock) travels continuously around an annular channel instead of combustion happening as a steady deflagration. The wave recirculates at kilohertz frequencies, so any point on the wall sees a periodic, not steady, heat load.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:002",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "URANS (Unsteady Reynolds-Averaged Navier-Stokes)",
+   "answer": "A CFD approach that time-resolves large-scale unsteady flow features, like a detonation wave passing, while still modeling turbulence statistically rather than resolving every eddy. It is expensive enough that this paper could only afford 2 to 3 detonation cycles before stopping the simulation.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:003",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "laplacianFoam",
+   "answer": "An OpenFOAM solver that marches a diffusion-type equation (here, transient heat conduction) forward in time on a mesh. The paper uses it to solve for temperature inside the solid wall once a boundary heat load is supplied from outside.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:004",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Thermal diffusivity (D_T or alpha)",
+   "answer": "A material property, D_T = k/(rho times specific heat), that measures how fast a temperature disturbance spreads through a solid by conduction, independent of how much total heat it takes. A higher value means the wall's interior responds to a surface heat pulse more quickly.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:005",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Convective heat transfer coefficient (htc or h)",
+   "answer": "The proportionality constant in q double-prime = h times (T_gas minus T_wall), converting a temperature difference between hot gas and a wall into a heat flux. It is not a fundamental constant: it depends on flow conditions and, critically, on what reference gas temperature it is paired with, so h values from different papers are only comparable if you check the reference temperature too.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:006",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Neumann (convective/mixed) boundary condition",
+   "answer": "A boundary condition that specifies the gradient of temperature at a surface, here set by dT/dn = h(T_gas minus T_wall)/k, rather than fixing the temperature itself (a Dirichlet condition). It lets the wall's surface temperature float and respond to the imposed heat flux over time.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:007",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "codedMixed boundary condition",
+   "answer": "An OpenFOAM feature letting a user compile custom C++ logic directly into a boundary condition, used here to make the convective heat flux vary in both space (around the annulus) and time (as the detonation wave passes) instead of being a single fixed value.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:008",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "One-way (fluid-to-solid) coupling",
+   "answer": "A simplification where hot gas temperatures from the CFD drive the wall's heat conduction, but the wall's temperature is never fed back to change the gas simulation. It is justified when gas temperature is much higher than wall temperature and the run time is short enough that wall heating cannot meaningfully cool the gas back.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:009",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Triple point (in a detonation wave)",
+   "answer": "The point where the leading detonation shock, a trailing oblique shock, and a shear layer all intersect, a classic feature of real detonation fronts. This paper finds the wall's hottest spot sits downstream of the detonation zone near this triple-point region, not right at the front itself.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:010",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Fill zone (in an RDC)",
+   "answer": "The region just ahead of the detonation wave where fresh, cooler reactants are being injected and have not yet burned. It offers the wall some natural, regenerative-style cooling, but in this non-premixed geometry that cooling only reaches about 40 percent of the detonation height.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:011",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Chapman-Jouguet (CJ) temperature, T_CJ",
+   "answer": "The theoretical post-detonation gas temperature predicted for a self-sustaining detonation wave, used as a fixed reference temperature in some heat-flux models. The paper flags that comparing an h value referenced to T_CJ against an h value referenced to local instantaneous CFD gas temperature is comparing two different definitions, not two competing measurements.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:012",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Thermal penetration depth",
+   "answer": "Roughly the distance, given by the square root of (diffusivity divided by pi times frequency), that a periodic surface temperature swing can propagate into a solid before it is damped out. At the roughly 3 kHz detonation frequency in steel this depth is only about 20 micrometers, which is why thermocouples buried a few millimeters deep see just the cycle-averaged flux, not the fast oscillation.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:013",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Nusselt-number correlation",
+   "answer": "An empirical formula relating a dimensionless heat transfer number (the Nusselt number) to flow parameters like Reynolds and Prandtl number, normally used to predict a convective coefficient without full CFD. The cited prior work tried this approach for the RDC and found it did not work, which is why this paper instead bounds htc empirically from measured heat flux data.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:014",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Conjugate heat transfer",
+   "answer": "A simulation approach that solves the fluid flow and the solid conduction together as one coupled system, so each side continuously affects the other. This paper deliberately avoids that expensive full coupling by instead running the wall conduction as a separate, cheaper model driven one-way by an already-computed gas temperature field.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-roy:015",
+   "deck": "pv-roy",
+   "type": "qa",
+   "prompt": "Adiabatic boundary condition",
+   "answer": "A boundary condition of zero heat flux, meaning no heat crosses that surface at all. The paper applies this to the wall's outer surface and end faces as a simplification, which tends to over-predict wall temperature somewhat since it ignores real external cooling losses.",
+   "source": "PURPL/20 Papers/paper-roy-2016-netl.md"
+  },
+  {
+   "id": "kn:pv-pizzo:001",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "IHCP (Inverse Heat Conduction Problem)",
+   "answer": "You know the temperature history at a point inside a solid, and you want to work backward to find the temperature and heat flux at a surface you cannot instrument, usually because it is too hot or otherwise inaccessible. It is called inverse because normally you'd solve forward from a known boundary condition to get temperatures inside; here you flip that direction, and flipping it is what makes the math touchy.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:002",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "DHCP (Direct Heat Conduction Problem)",
+   "answer": "The ordinary, well-behaved half of the method: given the measured temperatures at two known points inside a wall, solve the standard forward conduction equation for everything in between them. It is called direct because both boundaries have real data, so it is stable and easy compared to the inverse step that follows it.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:003",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Space marching (as used in the Carasso S6 scheme)",
+   "answer": "Instead of stepping forward in time the way you normally solve a heat equation, this method steps forward in space: it builds the complete time history of temperature and flux at one spatial node, then uses that whole history to compute the next node out, one node at a time until it reaches the surface. It works this way because there is no boundary data at the hot surface to time-march toward, so space becomes the direction you march.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:004",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Ill-posedness (in this inverse conduction context)",
+   "answer": "An inverse heat conduction solution is ill-posed because tiny errors or noise in the input data get amplified as the solution marches away from the measurement point, sometimes growing so fast that the answer becomes meaningless oscillation instead of a real signal. It is not a bug in the numerical scheme, it is a property of the underlying math: reversing diffusion is inherently unstable, so every practical method has to fight that amplification somehow.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:005",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Finite volume method (vertex-based)",
+   "answer": "A way of discretizing the conduction equation by dividing the domain into small control volumes centered on mesh nodes and writing an energy balance for each volume, rather than approximating derivatives directly at a point the way finite differences do. Vertex-based just means the nodes sit at the volume centers you actually track, which is convenient here because the two thermocouple locations become mesh nodes with known temperature directly.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:006",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Crank-Nicolson time discretization",
+   "answer": "A way of stepping a PDE forward in time that averages the spatial terms from the current time step and the next one, instead of using only one or the other. It buys second-order accuracy in time and unconditional stability for the diffusion equation, at the cost of needing an implicit solve at every step because the unknown future temperature appears on both sides of the equation.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:007",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Truncation error and amplification factor",
+   "answer": "Truncation error is the mathematical gap between the exact PDE and the discrete approximation you actually solve, usually expressed as how it shrinks with step size, like O(dt squared) or O(dx). Amplification factor describes something different but related: how much a small error already present in the solution grows or shrinks each time you take another step, which is the number that actually decides whether an ill-posed inverse scheme stays usable or blows up.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:008",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Thermal diffusivity, alpha",
+   "answer": "A material property equal to conductivity divided by the product of density and specific heat, alpha equals k over rho times cp, and it measures how fast a temperature disturbance spreads through a material rather than how much heat it can carry. It is the single number that governs the diffusion equation once you strip away the flux terms, so it controls how quickly a surface heating event shows up at a thermocouple buried some distance away.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:009",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Half-cell energy balance (for extracting heat flux at a thermocouple)",
+   "answer": "To get the heat flux passing through a node where you only have temperature data, you write a conservation of energy statement over just half of the control volume next to that node, balancing conduction in against the rate of temperature rise stored in that half-cell. This is how the method converts a temperature-only measurement into a flux value without ever measuring flux directly.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:010",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Tridiagonal solve / Thomas algorithm",
+   "answer": "When an implicit scheme like Crank-Nicolson only couples each node to its immediate left and right neighbors, the resulting system of equations has a banded, tridiagonal structure, and the Thomas algorithm solves that structure in a single fast forward-and-back sweep instead of a full general matrix inversion. It is why an implicit 1-D conduction solve stays cheap even though it looks more complicated than an explicit one.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:011",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Sensitivity to thermocouple depth error vs. data error",
+   "answer": "This paper distinguishes two very different failure modes: get the physical depth of a thermocouple slightly wrong, and the surface answer is off by about the same proportion, a mild, predictable error. Get the temperature reading itself slightly wrong, and the surface heat flux error comes out worse than the input error and keeps growing over time, because a biased reading behaves like continuously adding or removing heat rather than just shifting a number.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:012",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Effective heat transfer coefficient, h_eff",
+   "answer": "Once you know the surface temperature and surface heat flux from the inverse solution, you can back out a single convective heat transfer coefficient describing the hot gas side by dividing the flux by the difference between the driving gas temperature and the wall surface temperature. It is a convenient way to summarize a whole time history of coupled T and q data as one physically meaningful number, as long as that number stays roughly constant over the event.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:013",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Convergence test via mesh refinement (variance criterion)",
+   "answer": "To prove a numerical grid is fine enough, you keep cutting the spatial step in half and rerun the solution, then check whether the temperature at a chosen node stops changing meaningfully between refinements. Here that is done with a variance threshold: once the difference between successive refinements at the midpoint node is smaller than a chosen tolerance, the mesh is called converged and you stop refining.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:014",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Stabilizing an ill-posed inverse scheme by coarsening the time step",
+   "answer": "One crude way to suppress the runaway oscillations of an ill-posed inverse march is simply to use a larger time step, which smooths out the high-frequency noise that would otherwise get amplified node by node. It is not true regularization in the formal mathematical sense, it is closer to a side effect: coarser time resolution throws away exactly the high-frequency content that ill-posedness likes to amplify, but it only works if your physical problem can tolerate that coarse a time step.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:015",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Inverse domain (in a two-thermocouple IHCP setup)",
+   "answer": "The inverse domain is the stretch of material between the thermocouple closest to the hot surface and that hot surface itself, the region where you have no direct measurement and must march the ill-posed solution. Making this stretch shorter, by drilling the near thermocouple as close to the hot face as practical, is one of the main levers for keeping error amplification under control.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-pizzo:016",
+   "deck": "pv-pizzo",
+   "type": "qa",
+   "prompt": "Heat flux being lower order accurate than temperature",
+   "answer": "Because heat flux is proportional to a spatial derivative of temperature, computing it always costs one order of accuracy compared to computing temperature itself on the same discretized data. Practically this means you should always expect the flux estimate, and anything derived from it like an effective heat transfer coefficient, to carry noticeably more error than the temperature estimate it came from.",
+   "source": "PURPL/20 Papers/paper-pizzo-glass-ihcp.md"
+  },
+  {
+   "id": "kn:pv-braun:001",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Rotating detonation combustor (RDC/RDE)",
+   "answer": "A combustor where one or more detonation waves spin continuously around an annular channel, consuming fresh premixed reactant injected just behind each passing wave. Instead of burning at roughly constant pressure like a normal combustor, it produces a net pressure gain across the device, which is the whole reason people want to build one.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:002",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Chapman-Jouguet (CJ) condition",
+   "answer": "The state reached just behind a detonation wave when the burned gas accelerates until it is moving exactly at the local speed of sound relative to the wave. It is the minimum-speed, self-sustaining detonation solution, and RDC analyses use CJ pressure, temperature, and velocity as the reference jump condition across the front.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:003",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Triple point (detonation front)",
+   "answer": "The point where three flow features intersect: the detonation front itself, the oblique shock it trails into, and the slip line that separates burned gas from shock-processed unburned gas. In this paper it is the location of the peak time-averaged wall heat flux, even though the single highest instantaneous flux occurs right at the detonation front.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:004",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Method of characteristics (MOC)",
+   "answer": "A way of solving supersonic flow fields by tracing special lines, called characteristics, along which the governing partial differential equations collapse into simpler ordinary ones. Marching along these lines from known boundary data builds the whole 2D flow field point by point, without needing a full CFD mesh or solver.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:005",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Reduced-order model (ROM)",
+   "answer": "A deliberately simplified model that trades some physical fidelity for a huge speed advantage over full simulation. In this paper the ROM pairs a MOC flow field with a boundary-layer heat-transfer correlation, running in about 200 seconds on a laptop versus roughly 400 hours of 3D URANS, while staying within about 16 percent locally and 4 to 6 percent in bulk flux.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:006",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "URANS (Unsteady Reynolds-Averaged Navier-Stokes)",
+   "answer": "A CFD approach that still models turbulence statistically with a closure model, like k-omega SST, but keeps the time dependence in the equations so large-scale unsteady motion is directly resolved rather than averaged away. Here it lets the periodic rotation of the detonation wave be captured without paying for full DNS or LES cost.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:007",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Reshotko-Tucker correlation",
+   "answer": "A 1957 NACA method for predicting the Stanton number of a turbulent, compressible boundary layer from a momentum-integral equation. This paper uses it as the heat-transfer engine of its ROM, converting the MOC-computed flow history into a wall heat flux, with one empirically calibrated shape-factor constant tuning the fit.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:008",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Stanton number (St)",
+   "answer": "A dimensionless heat-transfer coefficient equal to the convective heat-transfer coefficient divided by the mass flux and specific heat of the flow, St = h over (rho times u times cp). It is the quantity the Reshotko-Tucker correlation actually predicts, and the paper converts it to wall heat flux rather than ever solving explicitly for h.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:009",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Momentum thickness (transformed, theta_tr)",
+   "answer": "A single number that summarizes how much momentum a boundary layer has lost to friction against the wall, found by integrating the velocity deficit across the layer's thickness. The paper uses a Stewartson-transformed version so a compressible boundary layer can be handled with the same integral math built for incompressible flow.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:010",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Shape factor (Hi, incompressible)",
+   "answer": "A ratio describing how full or how thin a boundary layer's velocity profile is, essentially displacement thickness divided by momentum thickness. The paper's flat-plate value, Hi,fp equal to 1.7, is the single constant tuned against a 2D validation case, and it is the one hand-calibrated knob in the entire correlation.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:011",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Eckert reference enthalpy method",
+   "answer": "A technique for handling compressible boundary-layer heat transfer by evaluating fluid properties at a fictitious reference enthalpy that sits between the wall and freestream values instead of at freestream conditions alone. Doing this lets an otherwise incompressible correlation stay reasonably accurate once viscous heating near the wall matters.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:012",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Adiabatic wall enthalpy (haw)",
+   "answer": "The enthalpy the wall would settle to if it exchanged no heat with the flow at all, driven purely by viscous dissipation converting some of the flow's kinetic energy back into heat right at the surface. The gap between this hypothetical value and the real wall enthalpy is what actually drives the computed wall heat flux.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:013",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "y+ (wall units)",
+   "answer": "A dimensionless measure of how far the first grid cell's center sits from a solid wall in turbulent CFD, expressed in units of local viscous length scale rather than physical distance. A y+ well below 1, as targeted in this paper's 3D mesh, means the viscous sublayer is directly resolved rather than approximated by a wall-function shortcut.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:014",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Richardson extrapolation (grid convergence)",
+   "answer": "A way to estimate both the true, grid-independent answer and the numerical error of a CFD result by comparing solutions computed on two or more meshes of different refinement and extrapolating the trend toward infinitely fine resolution. This paper reports an extrapolated discretization error of about 10.95 percent on its average bottom-plate heat flux, even for the mesh it calls converged.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:015",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "Pressure gain combustion",
+   "answer": "A class of combustion where the working fluid exits the device at a higher stagnation pressure than it entered with, instead of losing stagnation pressure the way ordinary constant-pressure deflagration burning does. It is the actual performance payoff RDCs chase, and this paper reports a converged pressure gain of 0.72 for its baseline case.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-braun:016",
+   "deck": "pv-braun",
+   "type": "qa",
+   "prompt": "ZND detonation model",
+   "answer": "The Zeldovich, von Neumann, Doring picture of a detonation's internal structure, a thin shock jump immediately followed by a finite reaction zone that burns the mixture up to the CJ state. This paper uses Cantera plus the Shock and Detonation Toolbox to compute that jump, and feeds the result into the MOC solver as its starting condition.",
+   "source": "PURPL/20 Papers/paper-braun-2018-rdc-heat-transfer-rom.md"
+  },
+  {
+   "id": "kn:pv-hades:001",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "RDE / RDC (Rotating Detonation Engine / Combustor)",
+   "answer": "A combustor where one or more detonation waves spin continuously around an annular channel, consuming fresh propellant as they pass so combustion happens through a supersonic detonation front rather than a slow deflagration flame. It is studied because the pressure gain from detonation can raise thermodynamic efficiency compared to constant pressure burners.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:002",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Chapman Jouguet (CJ) condition",
+   "answer": "The theoretical state just behind a detonation wave where the burned products move away from the wave at exactly the local speed of sound, giving the minimum stable detonation speed. Designers use the CJ pressure and CJ temperature as the reference peak values that the rest of the cycle decays down from.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:003",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Equivalence ratio (Phi)",
+   "answer": "A ratio comparing the actual fuel to air mixture in a combustor against the exact stoichiometric mixture that would consume all fuel and oxidizer with nothing left over. Phi equal to 1 is stoichiometric, Phi below 1 is fuel lean, and HADES runs at Phi of 0.9 to trade a slightly cooler flame for lower fuel use.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:004",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Detonation cell size (lambda)",
+   "answer": "A characteristic length, in millimeters, describing the diamond shaped cellular pattern a detonation wave etches as it travels through a given fuel, oxidizer, and pressure combination. It is an empirical fingerprint of how readily a mixture detonates, and the combustion annulus is sized as a multiple of it so the wave has room to stabilize.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:005",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "NASA CEA (Chemical Equilibrium with Applications)",
+   "answer": "A NASA developed code that computes the equilibrium composition, temperature, and thermodynamic properties of combustion products for a chosen propellant pair and condition. HADES wraps CEA inside a MATLAB sizing script to generate the CJ temperatures and pressures that feed the rest of the design.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:006",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Discharge coefficient (CD)",
+   "answer": "A correction factor, always less than one, that scales an ideal inviscid flow rate down to the real mass flow an orifice or slot actually passes, accounting for friction and flow contraction. It lets a designer size an injector opening to hit a target mass flow at a given pressure drop.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:007",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Injector stiffness",
+   "answer": "The pressure drop across an injector expressed as a percentage of the downstream chamber pressure. A high stiffness, such as the 100 percent used in HADES, means the drop is large enough to choke the injector so upstream feed pressure stays isolated from the pressure spikes of a passing detonation wave.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:008",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Mixing efficiency (eta_mix)",
+   "answer": "A single number between 0 and 1 describing how uniformly fuel and air have blended at a given cross section, calculated from how much the local fuel fraction still varies relative to a fully unmixed state. A value near 1 means the mixture is essentially uniform by the time it reaches the detonation zone.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:009",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Heat sink combustor",
+   "answer": "A combustor with no active cooling passages, where the solid wall simply absorbs and stores the heat load for the duration of a short test instead of shedding it continuously. It survives only because the hotfire is brief enough that the wall does not reach a damaging temperature before the test ends.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:010",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "SS 316L (stainless steel)",
+   "answer": "A low carbon grade of 316 stainless steel, chosen for its corrosion resistance, weldability, and retained strength at elevated temperature. HADES uses it as the uncooled chamber wall material because the low carbon content resists the intergranular cracking that welding can otherwise cause in stainless.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:011",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Stanton number",
+   "answer": "A dimensionless group that compares the heat actually transferred into a wall to the heat the flow's own thermal capacity could carry, effectively normalizing convective heat flux. HADES computes a modified Stanton number, tuned with an empirical constant, to predict wall heat flux from local boundary layer conditions.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:012",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Gas side heat transfer coefficient (effective h)",
+   "answer": "A single number, in watts per square meter kelvin, that lumps together all the complexity of convection from the hot detonation products into the wall so that heat flux equals h times the gas to wall temperature difference. HADES Phase 1 back calculates an effective h by matching a wall conduction model to temperatures actually measured by thermocouples during a hotfire.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:013",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Outer annulus",
+   "answer": "The ring shaped combustion passage between an inner and outer cylindrical wall where the detonation wave actually travels, as opposed to a single round bore chamber. Its gap width and diameter are sized directly from the detonation cell size so the wave has enough room to remain stable.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:014",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Factor of safety (FoS) in fatigue analysis",
+   "answer": "The margin an engineering design carries above the minimum stress or cycle count needed to survive its intended life, reported as a ratio rather than an absolute number. A minimum FoS of 1.75 at a given number of cycles means the most highly loaded point in the structure still has extra margin beyond the bare minimum needed to survive that many cycles.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:015",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Phase 1 method: thermocouple back calculation (TCC1, TCC2)",
+   "answer": "The experimental approach where wall mounted thermocouples, typically labeled by channel such as TCC1 and TCC2, record the temperature rise during a hotfire, and an inverse conduction calculation works backward from those measured temperatures to infer the gas side film coefficient h that must have produced them. It turns a predicted design number into a value grounded in real test data.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-hades:016",
+   "deck": "pv-hades",
+   "type": "qa",
+   "prompt": "Operating point",
+   "answer": "The specific combination of mass flow, equivalence ratio, and chamber pressure at which an engine is actually run or analyzed, as distinct from the full range of conditions it could be operated across. HADES's nominal operating point is about 0.907 kilograms per second of air, Phi of 0.9, and roughly 10 bar chamber pressure.",
+   "source": "PURPL/20 Papers/paper-hades-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:001",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "RDRE (Rotating Detonation Rocket Engine)",
+   "answer": "A rocket combustor where one or more detonation waves race continuously around an annular channel instead of burning propellant in a steady deflagration. The spinning wave both mixes and ignites fresh propellant as it passes, so thrust comes from a repeating detonation cycle rather than a constant-pressure flame.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:002",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Methagox (CH4/GOx propellant pair)",
+   "answer": "Shorthand for a rocket engine burning gaseous methane fuel with gaseous oxygen oxidizer. It is chosen over hydrogen/oxygen in Deimos because methane reacts more slowly, which lowers the risk of the fuel igniting too early inside the engine.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:003",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Equivalence ratio, Phi",
+   "answer": "A single number describing how rich or lean a fuel/oxidizer mixture is, defined so that Phi equals one at the exact stoichiometric ratio, above one means excess fuel, and below one means excess oxidizer. Deimos runs its campaign across Phi from 0.5 to 2.0 with 1.3 chosen as the best tradeoff between performance and detonation stability.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:004",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Detonation cell size, lambda",
+   "answer": "The characteristic diamond-shaped repeating pattern length that a detonation wave traces as it propagates, a property of the specific propellant mixture and pressure rather than of the engine hardware. Designers use lambda from reference databases to set the minimum channel gap and diameter a rotating detonation engine needs to sustain a stable wave.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:005",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Chapman-Jouguet (CJ) condition and CJ velocity",
+   "answer": "The theoretical steady state of a detonation wave where the reacting gas behind the wave reaches exactly sonic speed relative to the wave front, giving the maximum self-sustaining detonation speed for a given mixture. Real rotating detonation engines typically run at only 60 to 90 percent of this predicted CJ velocity, so their actual pressure and temperature must be corrected downward from the ideal CJ values.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:006",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Doublet vs triplet impinging injector",
+   "answer": "Two ways of aiming propellant jets so fuel and oxidizer mix by colliding: a doublet fires one fuel stream directly into one oxidizer stream, while a triplet fires two streams of one propellant converging onto a single central stream of the other. Deimos uses a swappable injector plate so the same engine can test both patterns and isolate how injector geometry affects the detonation.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:007",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Aerospike nozzle (and truncation)",
+   "answer": "A nozzle shape that replaces the enclosed bell of a conventional nozzle with an open, tapered spike, letting the surrounding atmospheric pressure form the outer boundary of the exhaust flow so the nozzle self-adjusts as altitude changes. Truncating the spike, cutting off its tip early such as at 40 percent of full length, trades a little ideal performance for a shorter, lighter, easier to cool nozzle.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:008",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "NASA CEA (Chemical Equilibrium with Applications)",
+   "answer": "A standard NASA software tool that computes the equilibrium chemistry and thermodynamic properties of a combustion product mixture, given the propellants, mixture ratio, and chamber pressure. Deimos uses it to predict specific impulse and characteristic velocity, the baseline performance numbers that everything else in the sizing chain builds on.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:009",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Flameholding (deflagration risk in RDREs)",
+   "answer": "An unwanted condition where propellant ignites and burns steadily in the refill zone behind the detonation wave, instead of waiting to be consumed by the next passing wave. It wastes propellant and can eventually quench the detonation entirely, and it is the main reason Deimos favors methane over the faster-reacting, more flameholding-prone hydrogen.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:010",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Auto-ignition delay",
+   "answer": "The time a fuel/oxidizer mixture takes to spontaneously ignite once it reaches a given temperature and pressure, without any external spark. Deimos compares this delay for methane and hydrogen using a Cantera chemical kinetics model, finding hydrogen ignites one to two orders of magnitude faster, which is why it carries higher flameholding risk.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:011",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Fanno flow",
+   "answer": "A model of compressible gas flow through a constant-area duct where friction is the only thing changing the gas properties along its length, no heat added or removed. Deimos applies it to size its long, narrow propellant injector orifices, since wall friction there is significant enough that a simple choked-orifice equation alone is not accurate.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:012",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Discharge coefficient, Cd",
+   "answer": "A correction factor, less than one, applied to an ideal flow equation to account for real losses in an orifice, such as the flow contracting slightly after it passes through. Deimos uses Cd equals 0.60 in its compressible orifice equation to translate a required mass flow rate into the actual upstream manifold pressure needed.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:013",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Injector stiffness",
+   "answer": "The ratio of the pressure drop across an injector to the chamber pressure it feeds into, expressed as a percentage. A high stiffness value means the injector pressure drop dominates over chamber pressure fluctuations, which decouples the propellant feed from combustion instabilities and helps keep the flow steady.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:014",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Method of Characteristics (MOC), applied to aerospike design",
+   "answer": "A numerical technique for designing supersonic nozzle contours by tracing the paths, called characteristic lines, along which small pressure disturbances propagate through the flow. Deimos uses Angelino's axisymmetric version of this method to compute the aerospike's outer contour point by point, then cross-checks the result against a second, independent MOC formulation.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:015",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Characteristic velocity, c*",
+   "answer": "A performance number that measures how effectively a combustion chamber converts propellant into hot, high-pressure gas, independent of the nozzle. It depends only on the propellant chemistry and chamber conditions, and Deimos gets its value from NASA CEA to compute mass flow rate and thrust.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-deimos:016",
+   "deck": "pv-deimos",
+   "type": "qa",
+   "prompt": "Post-detonation correction algorithm (sub-CJ modeling)",
+   "answer": "A calculation method, adapted from Kuo's approach, that takes the fraction of ideal CJ velocity an engine actually achieves and outputs corrected pressure and temperature efficiency fractions for that real, sub-ideal detonation state. Deimos needs this because a wave running below CJ speed does not sit on the standard Rankine-Hugoniot curve that ideal detonation theory assumes.",
+   "source": "PURPL/20 Papers/paper-deimos-aiaa-2026.md"
+  },
+  {
+   "id": "kn:pv-fatigue:001",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Rotating Detonation Engine (RDE)",
+   "answer": "A propulsion device that burns fuel and oxidizer inside a ring shaped channel using a continuously spinning detonation wave instead of a steady flame, so the surrounding metal hardware sees repeated, extremely hot, high pressure pulses rather than one constant condition.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:002",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Transient thermal analysis",
+   "answer": "A simulation step that tracks how temperature at every point in a part changes over time as heat moves in and out, used instead of a steady state assumption whenever a part never gets long enough to settle at one temperature, such as a wall during a short hotfire.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:003",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Static structural analysis",
+   "answer": "A simulation step that takes a temperature field or other load frozen at one moment in time and computes the resulting stress and strain in the part, treating inertia and motion effects as negligible, which is why it can be chained directly after a thermal analysis result.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:004",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Strain-life fatigue (Coffin-Manson-Basquin)",
+   "answer": "A method for predicting how many repeated load cycles a part survives before cracking, built by splitting the total strain range into an elastic portion tied to stress amplitude and a plastic portion tied to strain amplitude, each fitted with its own material constants from cyclic test data.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:005",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Smith-Watson-Topper (SWT) parameter",
+   "answer": "A fatigue damage measure calculated by multiplying the peak tensile stress reached in a cycle by that cycle's strain amplitude, chosen because it captures how a cycle that is more tensile than compressive does extra damage even when the strain swing itself looks moderate.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:006",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Stress amplitude and strain amplitude",
+   "answer": "Stress amplitude is half the difference between the highest and lowest stress reached during one load cycle, and strain amplitude is the same idea applied to strain, and both are the basic inputs that every fatigue life curve is built from.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:007",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Low-cycle fatigue",
+   "answer": "Failure that happens after a relatively small number of load cycles, often in the hundreds to low thousands, because the loading is severe enough to push the material past yield into plastic strain on every cycle, unlike high cycle fatigue where stresses stay elastic and failure takes millions of cycles.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:008",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Factor of safety applied to life vs. applied to stress",
+   "answer": "Two different ways to build in margin that are easy to confuse: dividing the predicted number of cycles to failure by a knockdown number to get a smaller design life, versus asking how much higher the applied stress could go before failure at a fixed cycle count, and a shared numeric value between the two conventions does not mean they agree.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:009",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Fatigue strength correction factor (as a workaround concept)",
+   "answer": "A manually applied scalar that scales down a room temperature fatigue result to approximate what would happen if the fatigue tool actually accounted for the material being weaker when hot, used whenever the software's built in fatigue model cannot read temperature dependent strain life properties even though the rest of the structural model can.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:010",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Yield strength",
+   "answer": "The stress level at which a metal stops springing back to its original shape once load is removed and starts to deform permanently instead, a property that falls sharply as the metal gets hotter and that governs how much of a hot cycle is spent in plastic deformation.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:011",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Ultimate tensile strength (UTS)",
+   "answer": "The maximum stress a material can carry in a tension test before it begins to neck down and eventually breaks, used in high temperature fatigue work as a stand in for how much the material's overall strength has degraded at a given temperature.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:012",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Mesh convergence",
+   "answer": "The practice of refining a finite element mesh, meaning using smaller and more numerous elements, until further refinement stops changing the computed results by a meaningful amount, which is how an analyst confirms the spatial resolution is fine enough to trust rather than just fast to run.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:013",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Chapman-Jouguet (CJ) detonation temperature",
+   "answer": "The theoretical gas temperature reached immediately behind a self sustaining detonation wave, calculated from the fuel and oxidizer chemistry, used as the driving hot gas temperature applied as a boundary condition to the wall the detonation sweeps past.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:014",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Convection heat transfer coefficient (h)",
+   "answer": "A number describing how effectively a moving fluid carries heat into or out of a solid surface, used in a thermal simulation to turn a bulk gas temperature into an actual heat flux hitting the wall, with a bigger number meaning faster heat transfer for the same temperature difference.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:015",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Solidus temperature",
+   "answer": "The temperature at which a metal alloy first begins to melt, forming a hard ceiling above which any structural or fatigue prediction for the solid part stops being physically meaningful.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:pv-fatigue:016",
+   "deck": "pv-fatigue",
+   "type": "qa",
+   "prompt": "Creep-fatigue interaction",
+   "answer": "A combined damage mode where slow, time dependent deformation at sustained high temperature, called creep, adds to the cycle by cycle damage from fatigue, so a part exposed to long hot dwell times needs an analysis that adds both effects together rather than treating fatigue alone as the whole story.",
+   "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  }
+ ]
 }

@@ -1,7 +1,13 @@
-// Knowledge (second-brain) deck loader. Ships alongside the word bank,
-// built from David's #review notes by tools/review_import.mjs. Cards are
-// { id: "kn:...", type, prompt, answer, source }. Absent or empty is a
-// normal state (no cards approved yet); the Review tab just says so.
+// Knowledge deck loader. Ships alongside the word bank, holding every
+// non-vocab card: hand-authored themed decks (RDE vocab, SpaceX interview
+// prep, one pre-reading vocab list per paper) plus #review second-brain
+// cards from tools/review_import.mjs. Cards are
+// { id: "kn:...", deck, type, prompt, answer, source }; a card with no
+// deck belongs to the default "brain" deck (the #review pipeline output).
+// Decks are named by the optional top-level `decks` manifest. Absent or
+// empty is a normal state; the Review tab just says so.
+
+const DEFAULT_DECK = "brain";
 
 let reviewBank = null;
 
@@ -14,8 +20,38 @@ export async function loadReviewBank() {
     /* offline first run before this deck was cached: treat as empty */
   }
   if (!reviewBank || !Array.isArray(reviewBank.cards)) {
-    reviewBank = { app: "bonmot-review", version: 1, cards: [] };
+    reviewBank = { app: "bonmot-review", version: 1, decks: [], cards: [] };
   }
+  if (!Array.isArray(reviewBank.decks)) reviewBank.decks = [];
+  for (const c of reviewBank.cards) if (!c.deck) c.deck = DEFAULT_DECK;
   reviewBank.byId = new Map(reviewBank.cards.map((c) => [c.id, c]));
   return reviewBank;
+}
+
+// Decks that actually have cards, each with its live new/due counts, in
+// manifest order (manifest-less decks fall to the end, insertion order).
+// A deck with a manifest entry but zero cards is omitted: nothing to study.
+export function deckSummaries(reviewBank, progress, now) {
+  const counts = new Map(); // deckId -> { total, due, seen }
+  for (const c of reviewBank.cards) {
+    const d = counts.get(c.deck) || { total: 0, due: 0, seen: 0 };
+    d.total++;
+    counts.set(c.deck, d);
+  }
+  for (const p of progress.values()) {
+    if (!p.id.startsWith("kn:")) continue;
+    const card = reviewBank.byId.get(p.id);
+    if (!card) continue;
+    const d = counts.get(card.deck);
+    if (!d) continue;
+    d.seen++;
+    if (p.state === "learning" && new Date(p.card.due) <= now) d.due++;
+  }
+  const manifest = new Map(reviewBank.decks.map((d, i) => [d.id, { ...d, order: i }]));
+  return [...counts.entries()]
+    .map(([id, c]) => {
+      const m = manifest.get(id) || { label: id, blurb: "", order: 999 };
+      return { id, label: m.label, blurb: m.blurb, order: m.order, new: c.total - c.seen, due: c.due, total: c.total };
+    })
+    .sort((a, b) => a.order - b.order);
 }

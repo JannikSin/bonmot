@@ -1,11 +1,15 @@
-// Review deck: the second-brain session. Due knowledge cards first,
-// then a capped intake of new ones. Same FSRS engine and progress store
-// as vocab, separated only by the kn: id prefix. Deliberately thinner
-// than Today: no tiers, no resurface, no streak. Knowledge recall is a
-// separate discipline from the daily vocab streak.
+// Review decks: the knowledge sessions. A deck picker on top, then one
+// FSRS session per chosen deck (due cards first, then a capped intake of
+// new ones). Same engine and progress store as vocab, separated only by
+// the kn: id prefix; decks separate the knowledge cards from each other
+// so a session stays coherent (RDE vocab is not shuffled with SpaceX
+// interview prep). Deliberately thinner than Today: no tiers, no
+// resurface, no streak. Knowledge recall is a separate discipline from
+// the daily vocab streak.
 
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
+import { deckSummaries } from "../review-bank.js";
 import { esc } from "./entry.js";
 
 // ponytail: fixed daily intake of new knowledge cards. A throttle vs
@@ -13,13 +17,18 @@ import { esc } from "./entry.js";
 const NEW_CAP = 10;
 const REVIEW_CAP = 60;
 
-export function buildReviewSession(reviewBank, progress, now) {
-  const known = [...progress.values()].filter((p) => p.id.startsWith("kn:"));
+// deckId null = every knowledge deck (used by tests and the "all" path);
+// a deck id restricts the session to that one deck's cards.
+export function buildReviewSession(reviewBank, progress, now, deckId = null) {
+  const inDeck = (id) => !deckId || reviewBank.byId.get(id)?.deck === deckId;
+  const known = [...progress.values()].filter((p) => p.id.startsWith("kn:") && inDeck(p.id));
   const due = known
     .filter((p) => p.state === "learning" && isDue(p, now))
     .sort((a, b) => new Date(a.card.due) - new Date(b.card.due))
     .slice(0, REVIEW_CAP);
-  const fresh = reviewBank.cards.filter((c) => !progress.has(c.id)).slice(0, NEW_CAP);
+  const fresh = reviewBank.cards
+    .filter((c) => (!deckId || c.deck === deckId) && !progress.has(c.id))
+    .slice(0, NEW_CAP);
   const items = [
     ...due.map((p) => ({ kind: "review", id: p.id })),
     ...fresh.map((c) => ({ kind: "intro", id: c.id })),
@@ -29,16 +38,29 @@ export function buildReviewSession(reviewBank, progress, now) {
 
 export function createReviewView(ctx) {
   const { reviewBank, progress, saveProgress } = ctx;
+  let deckId = null; // null = showing the deck picker
   let session = null;
   let revealed = false;
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
   let sessionLapses = new Map();
 
-  function start() {
-    session = buildReviewSession(reviewBank, progress, new Date());
+  function start(id) {
+    deckId = id;
+    session = buildReviewSession(reviewBank, progress, new Date(), id);
     counts = { reviewed: 0, correct: 0, introduced: 0 };
     sessionLapses = new Map();
     revealed = false;
+  }
+
+  function toPicker() {
+    deckId = null;
+    session = null;
+    revealed = false;
+  }
+
+  function deckLabel() {
+    const d = reviewBank.decks.find((d) => d.id === deckId);
+    return d ? d.label : deckId;
   }
 
   function current() {
@@ -76,7 +98,10 @@ export function createReviewView(ctx) {
   }
 
   function render(el) {
-    if (!session) start();
+    if (deckId === null) {
+      el.innerHTML = pickerHtml();
+      return;
+    }
     const item = current();
     if (!item) {
       el.innerHTML = doneHtml();
@@ -96,7 +121,7 @@ export function createReviewView(ctx) {
     if (item.kind === "intro") {
       el.innerHTML = `
         <div class="card" data-kind="intro">
-          <p class="eyebrow">new card &middot; ${n} of ${total}</p>
+          <p class="eyebrow">${esc(deckLabel())} &middot; new card &middot; ${n} of ${total}</p>
           <p class="review-prompt">${esc(c.prompt)}</p>
           ${answer}
           <div class="actions">
@@ -106,7 +131,7 @@ export function createReviewView(ctx) {
     } else {
       el.innerHTML = `
         <div class="card" data-kind="review">
-          <p class="eyebrow">${label} &middot; ${n} of ${total}</p>
+          <p class="eyebrow">${esc(deckLabel())} &middot; ${label} &middot; ${n} of ${total}</p>
           <p class="review-prompt">${esc(c.prompt)}</p>
           ${revealed ? answer : `<p class="recall-hint">Recall it, then reveal.</p>`}
           <div class="actions">
@@ -121,23 +146,51 @@ export function createReviewView(ctx) {
     }
   }
 
+  function pickerHtml() {
+    const decks = deckSummaries(reviewBank, progress, new Date());
+    if (decks.length === 0) {
+      return `
+        <div class="card done">
+          <p class="fleuron">&#10086;</p>
+          <h1 class="done-title">No review decks yet</h1>
+          <p class="honest">Themed decks live in data/review.json; #review notes build the second brain deck via npm run review-scan then npm run review-import.</p>
+        </div>`;
+    }
+    const tiles = decks
+      .map((d) => {
+        const ready = d.due + d.new;
+        const badge =
+          ready > 0
+            ? `<span class="deck-ready">${d.due} due &middot; ${d.new} new</span>`
+            : `<span class="deck-clear">all caught up</span>`;
+        return `
+          <button class="deck-tile" data-act="deck:${esc(d.id)}">
+            <span class="deck-head">
+              <span class="deck-label">${esc(d.label)}</span>
+              ${badge}
+            </span>
+            ${d.blurb ? `<span class="deck-blurb">${esc(d.blurb)}</span>` : ""}
+            <span class="deck-meta">${d.total} cards</span>
+          </button>`;
+      })
+      .join("");
+    return `
+      <div class="deck-list">
+        <p class="eyebrow">Pick a deck</p>
+        ${tiles}
+      </div>`;
+  }
+
   function doneHtml() {
-    const empty = reviewBank.cards.length === 0;
     const ran = counts.reviewed + counts.introduced > 0;
-    const title = empty
-      ? "No review deck yet"
-      : ran
-        ? "Review complete"
-        : "Nothing due right now";
-    const body = empty
-      ? `Tag notes with #review, run npm run review-scan, approve cards in System/Review-Queue.md, then npm run review-import.`
-      : ran
-        ? "The next cards arrive as they come due."
-        : "No knowledge cards are scheduled yet. New reviews arrive with tomorrow.";
+    const title = ran ? "Deck complete" : "Nothing due here";
+    const body = ran
+      ? "The next cards arrive as they come due."
+      : "No cards in this deck are scheduled yet. New ones arrive with tomorrow.";
     return `
       <div class="card done">
         <p class="fleuron">&#10086;</p>
-        <h1 class="done-title">${title}</h1>
+        <h1 class="done-title">${esc(deckLabel())}: ${title}</h1>
         <p class="honest">${esc(body)}</p>
         ${
           ran
@@ -147,15 +200,20 @@ export function createReviewView(ctx) {
               </dl>`
             : ""
         }
+        <div class="actions">
+          <button class="primary wide" data-act="decks">Back to decks</button>
+        </div>
       </div>`;
   }
 
   async function onAction(act) {
-    if (act === "reveal") revealed = true;
+    if (act === "decks") toPicker();
+    else if (act.startsWith("deck:")) start(act.slice(5));
+    else if (act === "reveal") revealed = true;
     else if (act === "again") await onGrade("again");
     else if (act === "good") await onGrade("good");
     else if (act === "continue") await onIntroContinue();
   }
 
-  return { render, onAction, restart: start };
+  return { render, onAction, restart: toPicker };
 }

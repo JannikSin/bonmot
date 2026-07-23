@@ -25,9 +25,13 @@ function parseArgs(argv) {
 export function runImport({ queue, bank }) {
   if (!existsSync(queue)) throw new Error("queue not found: " + queue);
   const approved = parseQueue(readFileSync(queue, "utf8")).filter((c) => c.approved);
-  const existing = existsSync(bank) ? JSON.parse(readFileSync(bank, "utf8")).cards || [] : [];
+  const prev = existsSync(bank) ? JSON.parse(readFileSync(bank, "utf8")) : {};
+  const existing = prev.cards || [];
+  // Preserve the hand-authored deck manifest (themed decks live in the
+  // same file); #review cards have no deck and fall to the default deck.
+  const decks = Array.isArray(prev.decks) ? prev.decks : [];
   const { cards, added, updated } = mergeBank(existing, approved);
-  const out = { app: "bonmot-review", version: 1, generatedAt: new Date().toISOString().slice(0, 10), cards };
+  const out = { app: "bonmot-review", version: 1, generatedAt: new Date().toISOString().slice(0, 10), decks, cards };
   mkdirSync(dirname(bank), { recursive: true });
   writeFileSync(bank, JSON.stringify(out, null, 1));
   return { approved: approved.length, added, updated, total: cards.length };
