@@ -9,7 +9,7 @@ import {
   INTRO_GAP,
 } from "../queue.js";
 import { updateStreak, recordOutcome, retention } from "../stats.js";
-import { headwordHtml, bodyHtml } from "./entry.js";
+import { headwordHtml, bodyHtml, progressHtml } from "./entry.js";
 
 function today() {
   const d = new Date();
@@ -146,24 +146,48 @@ export function createTodayView(ctx) {
     const flagBtn = flagArmed
       ? `<button class="flag armed" data-act="flag">Tap again to bury this entry</button>`
       : `<button class="flag" data-act="flag" aria-label="Flag a mistake in this entry">⚑</button>`;
+    // Recall first: a card in a not-yet-revealed state shows only the
+    // headword, and tapping anywhere on it reveals (data-act on the card
+    // itself; the delegated click handler picks the nearest data-act, so
+    // the action buttons still win their own taps).
+    const tappable = (recall) => (recall ? ` card--recall" data-act="reveal` : "");
     if (item.kind === "intro") {
       el.innerHTML = `
-        <div class="card" data-kind="intro">
+        <div class="card${tappable(!revealed)}" data-kind="intro">
+          ${progressHtml(n, total)}
           <p class="eyebrow">new word · ${n} of ${total}</p>
           ${flagBtn}
-          ${headwordHtml(w)}
-          <div class="entry-body open">${bodyHtml(w)}</div>
+          <div class="card-main">
+            ${headwordHtml(w, { withIpa: revealed })}
+            ${
+              revealed
+                ? `<div class="entry-body open">${bodyHtml(w)}</div>`
+                : `<p class="recall-hint">New word. Take a guess at the meaning, then reveal.</p>`
+            }
+          </div>
           <div class="actions">
-            <button class="ghost" data-act="know">Already know it</button>
-            <button class="primary" data-act="continue">Continue</button>
+            ${
+              revealed
+                ? `<button class="ghost" data-act="know">Already know it</button>
+                   <button class="primary" data-act="continue">Continue</button>`
+                : `<button class="ghost" data-act="know">Already know it</button>
+                   <button class="primary" data-act="reveal">Reveal</button>`
+            }
           </div>
         </div>`;
     } else if (item.kind === "resurface") {
       el.innerHTML = `
-        <div class="card" data-kind="resurface">
+        <div class="card${tappable(!revealed)}" data-kind="resurface">
+          ${progressHtml(n, total)}
           <p class="eyebrow">still with you?</p>
-          ${headwordHtml(w, { withIpa: false })}
-          ${revealed ? `<div class="entry-body open">${bodyHtml(w)}</div>` : ""}
+          <div class="card-main">
+            ${headwordHtml(w, { withIpa: false })}
+            ${
+              revealed
+                ? `<div class="entry-body open">${bodyHtml(w)}</div>`
+                : `<p class="recall-hint">Recall the meaning, then check.</p>`
+            }
+          </div>
           <div class="actions">
             ${
               revealed
@@ -175,7 +199,8 @@ export function createTodayView(ctx) {
         </div>`;
     } else {
       el.innerHTML = `
-        <div class="card" data-kind="review">
+        <div class="card${tappable(!revealed)}" data-kind="review">
+          ${progressHtml(n, total)}
           <p class="eyebrow">review · ${n} of ${total}</p>
           ${
             session.dueDeferred > 0 && n === 1
@@ -183,8 +208,10 @@ export function createTodayView(ctx) {
               : ""
           }
           ${flagBtn}
-          ${headwordHtml(w, { withIpa: revealed })}
-          ${revealed ? `<div class="entry-body open">${bodyHtml(w)}</div>` : `<p class="recall-hint">Recall the meaning, then reveal.</p>`}
+          <div class="card-main">
+            ${headwordHtml(w, { withIpa: revealed })}
+            ${revealed ? `<div class="entry-body open">${bodyHtml(w)}</div>` : `<p class="recall-hint">Recall the meaning, then reveal.</p>`}
+          </div>
           <div class="actions">
             ${
               revealed

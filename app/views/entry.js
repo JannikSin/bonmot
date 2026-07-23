@@ -4,6 +4,15 @@
 
 import { romanTier } from "../bank.js";
 
+// Session progress as a thin filled rule (letterpress hairline that
+// fills with gilt). Native <progress> so the fill comes from the value
+// attribute, not an inline style (the strict CSP blocks inline styles).
+// Shared by Today and Review so the two sessions feel like one app.
+// n is the current card's 1-based position.
+export function progressHtml(n, total) {
+  return `<progress class="progress" value="${n}" max="${total > 0 ? total : 1}" aria-label="card ${n} of ${total}"></progress>`;
+}
+
 export function esc(s) {
   return String(s)
     .replaceAll("&", "&amp;")

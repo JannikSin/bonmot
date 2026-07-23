@@ -99,7 +99,51 @@ main {
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-top: 4vh;
+  padding-top: 2vh;
+}
+/* A card in recall state is one big reveal target. */
+.card--recall {
+  cursor: pointer;
+}
+
+/* The middle of the card holds the prompt and the revealed answer, and
+   centers them in the free space so the card reads as composed instead
+   of top-heavy with a void above the buttons. */
+.card-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+/* Session progress: a hairline that fills with gilt. Native <progress>
+   so the fill is driven by the value attribute (the CSP blocks inline
+   styles, so a width:X% span would not work). */
+.progress {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 3px;
+  border: none;
+  border-radius: 2px;
+  background: var(--hairline);
+  overflow: hidden;
+  margin-bottom: 2.4vh;
+}
+.progress::-webkit-progress-bar {
+  background: var(--hairline);
+  border-radius: 2px;
+}
+.progress::-webkit-progress-value {
+  background: var(--gilt);
+  border-radius: 2px;
+}
+.progress::-moz-progress-bar {
+  background: var(--gilt);
+  border-radius: 2px;
 }
 
 .eyebrow {
@@ -109,7 +153,7 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--faded);
-  margin-bottom: 3vh;
+  margin-bottom: 2vh;
 }
 
 .headword {
@@ -150,10 +194,10 @@ main {
 }
 
 .recall-hint {
-  margin-top: 5vh;
+  margin-top: 3vh;
   color: var(--faded);
   font-style: italic;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .entry-body {
@@ -218,8 +262,9 @@ main {
   margin-top: 2vh;
 }
 .review-answer {
-  font-size: 20px;
-  line-height: 1.5;
+  font-size: 19px;
+  line-height: 1.58;
+  max-width: 34em;
   color: var(--paper);
 }
 .review-source {
@@ -253,7 +298,7 @@ main {
 
 .flag {
   position: absolute;
-  top: 0;
+  top: 34px;
   right: 0;
   background: none;
   border: none;

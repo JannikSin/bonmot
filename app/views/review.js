@@ -10,7 +10,7 @@
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
 import { deckSummaries } from "../review-bank.js";
-import { esc } from "./entry.js";
+import { esc, progressHtml } from "./entry.js";
 
 // ponytail: fixed daily intake of new knowledge cards. A throttle vs
 // review debt (like queue.js newWordBudget) can be added if backlogs bite.
@@ -118,22 +118,35 @@ export function createReviewView(ctx) {
     const label = c.type === "cloze" ? "cloze" : "recall";
     const answer = `<div class="entry-body open"><p class="review-answer">${esc(c.answer)}</p>
       <p class="review-source">${esc(c.source)}</p></div>`;
+    // Recall first, on new cards too: show the prompt, let it land, then
+    // reveal the answer. Tapping the card reveals (data-act on the card).
+    const recallCls = revealed ? "" : ' card--recall" data-act="reveal';
     if (item.kind === "intro") {
       el.innerHTML = `
-        <div class="card" data-kind="intro">
+        <div class="card${recallCls}" data-kind="intro">
+          ${progressHtml(n, total)}
           <p class="eyebrow">${esc(deckLabel())} &middot; new card &middot; ${n} of ${total}</p>
-          <p class="review-prompt">${esc(c.prompt)}</p>
-          ${answer}
+          <div class="card-main">
+            <p class="review-prompt">${esc(c.prompt)}</p>
+            ${revealed ? answer : `<p class="recall-hint">New card. Try to answer it, then reveal.</p>`}
+          </div>
           <div class="actions">
-            <button class="primary wide" data-act="continue">Continue</button>
+            ${
+              revealed
+                ? `<button class="primary wide" data-act="continue">Continue</button>`
+                : `<button class="primary wide" data-act="reveal">Reveal</button>`
+            }
           </div>
         </div>`;
     } else {
       el.innerHTML = `
-        <div class="card" data-kind="review">
+        <div class="card${recallCls}" data-kind="review">
+          ${progressHtml(n, total)}
           <p class="eyebrow">${esc(deckLabel())} &middot; ${label} &middot; ${n} of ${total}</p>
-          <p class="review-prompt">${esc(c.prompt)}</p>
-          ${revealed ? answer : `<p class="recall-hint">Recall it, then reveal.</p>`}
+          <div class="card-main">
+            <p class="review-prompt">${esc(c.prompt)}</p>
+            ${revealed ? answer : `<p class="recall-hint">Recall it, then reveal.</p>`}
+          </div>
           <div class="actions">
             ${
               revealed

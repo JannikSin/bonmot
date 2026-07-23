@@ -127,6 +127,27 @@ async function boot() {
     go(btn.dataset.route);
   });
 
+  // Keyboard for desktop: space or enter takes the primary action
+  // (reveal, then continue or got-it); 1 marks it wrong, 2 marks it
+  // right. Clicks the real buttons so it rides the same handler.
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const tag = e.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    const click = (sel) => {
+      const b = viewEl.querySelector(sel);
+      if (b) b.click();
+      return !!b;
+    };
+    if (e.key === " " || e.key === "Enter") {
+      if (click(".actions .primary")) e.preventDefault();
+    } else if (e.key === "1") {
+      click('.actions [data-act="again"], .actions [data-act="shaky"], .actions [data-act="know"]');
+    } else if (e.key === "2") {
+      click('.actions [data-act="good"], .actions [data-act="still"], .actions [data-act="continue"]');
+    }
+  });
+
   render();
 }
 
