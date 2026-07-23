@@ -13,6 +13,23 @@ export function progressHtml(n, total) {
   return `<progress class="progress" value="${n}" max="${total > 0 ? total : 1}" aria-label="card ${n} of ${total}"></progress>`;
 }
 
+// Write-mode pieces, shared by Today and Review. Write mode lets you
+// type your recalled answer before revealing (the generation effect),
+// then compare it against the real one. Self-graded: no fragile string
+// matching. All CSP-safe (no inline styles).
+export function writeToggleHtml(on) {
+  return on
+    ? `<button class="write-toggle" data-act="write-off">Hide typing</button>`
+    : `<button class="write-toggle" data-act="write-on">Type your answer</button>`;
+}
+export function writeInputHtml() {
+  return `<textarea class="write-input" data-write rows="3" placeholder="Type what you recall, then reveal to compare" aria-label="Type your answer"></textarea>`;
+}
+export function typedAnswerHtml(typed) {
+  if (!typed) return "";
+  return `<div class="typed"><span class="label">you wrote</span> ${esc(typed)}</div>`;
+}
+
 export function esc(s) {
   return String(s)
     .replaceAll("&", "&amp;")

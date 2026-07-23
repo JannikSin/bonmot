@@ -9,7 +9,14 @@ import {
   INTRO_GAP,
 } from "../queue.js";
 import { updateStreak, recordOutcome, retention } from "../stats.js";
-import { headwordHtml, bodyHtml, progressHtml } from "./entry.js";
+import {
+  headwordHtml,
+  bodyHtml,
+  progressHtml,
+  writeToggleHtml,
+  writeInputHtml,
+  typedAnswerHtml,
+} from "./entry.js";
 
 function today() {
   const d = new Date();
@@ -21,6 +28,8 @@ export function createTodayView(ctx) {
   let session = null;
   let revealed = false;
   let flagArmed = false;
+  let writeMode = false; // persists across cards in a session
+  let typedAnswer = "";
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
   // Leech guard: after 3 in-session lapses a card stops requeuing and
   // waits for tomorrow, so one stubborn word can never trap the session.
@@ -37,6 +46,7 @@ export function createTodayView(ctx) {
     sessionLapses = new Map();
     revealed = false;
     flagArmed = false;
+    typedAnswer = "";
   }
 
   function current() {
@@ -47,6 +57,7 @@ export function createTodayView(ctx) {
     session.index = (session.index || 0) + 1;
     revealed = false;
     flagArmed = false;
+    typedAnswer = "";
   }
 
   async function onGrade(rating) {
@@ -149,8 +160,12 @@ export function createTodayView(ctx) {
     // Recall first: a card in a not-yet-revealed state shows only the
     // headword, and tapping anywhere on it reveals (data-act on the card
     // itself; the delegated click handler picks the nearest data-act, so
-    // the action buttons still win their own taps).
-    const tappable = (recall) => (recall ? ` card--recall" data-act="reveal` : "");
+    // the action buttons still win their own taps). Tap-to-reveal is off
+    // while typing so a tap reaches the textarea.
+    const tappable = (recall) => (recall && !writeMode ? ` card--recall" data-act="reveal` : "");
+    const recallBody = writeMode
+      ? writeInputHtml()
+      : `<p class="recall-hint">New word. Take a guess at the meaning, then reveal.</p>`;
     if (item.kind === "intro") {
       el.innerHTML = `
         <div class="card${tappable(!revealed)}" data-kind="intro">
@@ -161,8 +176,8 @@ export function createTodayView(ctx) {
             ${headwordHtml(w, { withIpa: revealed })}
             ${
               revealed
-                ? `<div class="entry-body open">${bodyHtml(w)}</div>`
-                : `<p class="recall-hint">New word. Take a guess at the meaning, then reveal.</p>`
+                ? `<div class="entry-body open">${typedAnswerHtml(typedAnswer)}${bodyHtml(w)}</div>`
+                : recallBody
             }
           </div>
           <div class="actions">
@@ -174,6 +189,7 @@ export function createTodayView(ctx) {
                    <button class="primary" data-act="reveal">Reveal</button>`
             }
           </div>
+          ${revealed ? "" : `<div class="write-row">${writeToggleHtml(writeMode)}</div>`}
         </div>`;
     } else if (item.kind === "resurface") {
       el.innerHTML = `
@@ -198,6 +214,9 @@ export function createTodayView(ctx) {
           </div>
         </div>`;
     } else {
+      const reviewRecall = writeMode
+        ? writeInputHtml()
+        : `<p class="recall-hint">Recall the meaning, then reveal.</p>`;
       el.innerHTML = `
         <div class="card${tappable(!revealed)}" data-kind="review">
           ${progressHtml(n, total)}
@@ -210,7 +229,7 @@ export function createTodayView(ctx) {
           ${flagBtn}
           <div class="card-main">
             ${headwordHtml(w, { withIpa: revealed })}
-            ${revealed ? `<div class="entry-body open">${bodyHtml(w)}</div>` : `<p class="recall-hint">Recall the meaning, then reveal.</p>`}
+            ${revealed ? `<div class="entry-body open">${typedAnswerHtml(typedAnswer)}${bodyHtml(w)}</div>` : reviewRecall}
           </div>
           <div class="actions">
             ${
@@ -220,6 +239,7 @@ export function createTodayView(ctx) {
                 : `<button class="primary wide" data-act="reveal">Reveal</button>`
             }
           </div>
+          ${revealed ? "" : `<div class="write-row">${writeToggleHtml(writeMode)}</div>`}
         </div>`;
     }
   }
@@ -260,8 +280,13 @@ export function createTodayView(ctx) {
   }
 
   async function onAction(act) {
-    if (act === "reveal") revealed = true;
-    else if (act === "again") await onGrade("again");
+    if (act === "write-on") writeMode = true;
+    else if (act === "write-off") writeMode = false;
+    else if (act === "reveal") {
+      const ta = document.querySelector("[data-write]");
+      if (ta) typedAnswer = ta.value;
+      revealed = true;
+    } else if (act === "again") await onGrade("again");
     else if (act === "good") await onGrade("good");
     else if (act === "continue") await onIntroContinue();
     else if (act === "know") await onAlreadyKnow();

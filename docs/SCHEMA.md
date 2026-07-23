@@ -42,7 +42,13 @@ Any schema change updates this doc in the same commit.
   "version": 1,
   "generatedAt": "2026-07-17",
   "decks": [
-    { "id": "rde", "label": "RDE fundamentals", "blurb": "one line shown on the deck tile" }
+    {
+      "id": "rde",
+      "label": "RDE fundamentals",
+      "blurb": "one line shown on the deck tile",
+      "group": "PURPL/Fundamentals",
+      "tags": ["rde", "detonation", "heat-transfer"]
+    }
   ],
   "cards": [
     {
@@ -60,7 +66,9 @@ Any schema change updates this doc in the same commit.
 Holds every non-vocab card: hand-authored themed decks (RDE fundamentals, SpaceX interview prep, one pre-reading vocab list per paper) plus `#review` second-brain cards built by `tools/review_import.mjs` (pipeline: `review_scan.mjs` -> approval queue markdown -> `review_import.mjs`). Same merge-not-replace discipline as the word bank: cards are added or updated by id, never dropped, so progress survives regeneration. See `docs/DECKS.md` for how to add a deck.
 
 - `id`: two id styles share the `kn:` prefix. `#review` cards use `kn:<blockHash>:<n>` (`blockHash` = sha256(source path + normalized block text), idempotent). Hand-authored decks use `kn:<deckId>:<seq>` (e.g. `kn:rde:001`). Either way the `kn:` prefix (colon) can never collide with a word-bank slug (`^[a-z][a-z-]*$`, no colon), which is what keeps the two decks in one progress store from mixing.
-- `deck`: which deck the card belongs to; the Review tab groups by it so a session stays one subject. A card with no `deck` falls to the default `"brain"` deck (that is what `#review` cards do, since the importer does not set one). `decks[]` is the optional manifest of `{ id, label, blurb }`; the importer preserves it across `#review` re-imports. A deck listed in the manifest but with zero cards is omitted from the picker; a deck used by cards but absent from the manifest still shows, labeled by its id.
+- `deck`: which deck the card belongs to; the Review tab groups by it so a session stays one subject. A card with no `deck` falls to the default `"brain"` deck (that is what `#review` cards do, since the importer does not set one). `decks[]` is the optional manifest of `{ id, label, blurb, group?, tags? }`; the importer preserves it across `#review` re-imports. A deck listed in the manifest but with zero cards is omitted from the picker; a deck used by cards but absent from the manifest still shows, labeled by its id.
+- `group`: optional slash-delimited folder path (e.g. `"PURPL/Papers"`); the picker renders it as collapsible folders (native `<details>`). Absent means the deck lands under an `"Other"` folder.
+- `tags`: optional array of lowercase keywords (author names, topics, years). They drive search: the picker's search box matches a query against label, blurb, group, and tags, and separately searches card prompt/answer text so a term surfaces every deck that mentions it. Per-deck strength on the picker is computed live, not stored: it is the count of the deck's seen cards whose FSRS `stability` has reached the mature threshold (21 days).
 - `type`: `qa` (prompt is a question) or `cloze` (prompt is a sentence with `___`). Both render as prompt then reveal-answer; the app only uses `type` for the eyebrow label.
 - Progress for these cards lives in the SAME `progress` store below, keyed by the `kn:` id. The vocab session (`app/queue.js`) filters `kn:` ids out; the Review decks (`app/views/review.js`) filter them in, then by chosen deck.
 

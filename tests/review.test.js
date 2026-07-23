@@ -230,3 +230,51 @@ test("shipped data/review.json is valid: kn: ids, known decks, unique, no dashes
     assert.ok(!blob.includes(EM) && !blob.includes(EN), `dash in deck ${d.id}`);
   }
 });
+
+test("searchDecks and searchCards filter by tags, group, and card text", async () => {
+  const { searchDecks, searchCards } = await import("../app/review-bank.js");
+  const summaries = [
+    { id: "pv-roy", label: "Paper: Roy 2016", blurb: "effective h", group: "PURPL/Papers", tags: ["roy", "rde", "heat-transfer"] },
+    { id: "spacex", label: "SpaceX interview prep", blurb: "questions", group: "Career", tags: ["spacex", "interview"] },
+  ];
+  // tag match
+  assert.deepEqual(searchDecks(summaries, "heat-transfer").map((d) => d.id), ["pv-roy"]);
+  // group match
+  assert.deepEqual(searchDecks(summaries, "papers").map((d) => d.id), ["pv-roy"]);
+  // all words must match
+  assert.equal(searchDecks(summaries, "roy interview").length, 0);
+  // empty query returns all
+  assert.equal(searchDecks(summaries, "").length, 2);
+
+  const reviewBank = {
+    cards: [
+      { id: "kn:pv-roy:001", deck: "pv-roy", prompt: "Thermal diffusivity", answer: "how fast heat spreads" },
+      { id: "kn:pv-braun:001", deck: "pv-braun", prompt: "Stanton number", answer: "dimensionless heat transfer" },
+      { id: "kn:spacex:001", deck: "spacex", prompt: "Why SpaceX", answer: "the pace of iteration" },
+    ],
+  };
+  const hits = searchCards(reviewBank, "heat");
+  assert.deepEqual(hits.map((h) => h.deckId).sort(), ["pv-braun", "pv-roy"]);
+  assert.ok(hits.every((h) => h.count === 1 && h.sample));
+});
+
+test("deckSummaries counts mastered cards by FSRS stability", async () => {
+  const { deckSummaries } = await import("../app/review-bank.js");
+  const reviewBank = {
+    decks: [{ id: "rde", label: "RDE", blurb: "", group: "PURPL/Fundamentals", tags: ["rde"] }],
+    cards: [
+      { id: "kn:rde:001", deck: "rde", type: "qa", prompt: "a", answer: "1", source: "s" },
+      { id: "kn:rde:002", deck: "rde", type: "qa", prompt: "b", answer: "2", source: "s" },
+    ],
+    byId: new Map(),
+  };
+  reviewBank.byId = new Map(reviewBank.cards.map((c) => [c.id, c]));
+  const progress = new Map();
+  progress.set("kn:rde:001", { id: "kn:rde:001", state: "learning", card: { due: T0.toISOString(), stability: 40 } });
+  progress.set("kn:rde:002", { id: "kn:rde:002", state: "learning", card: { due: T0.toISOString(), stability: 3 } });
+  const [rde] = deckSummaries(reviewBank, progress, T0);
+  assert.equal(rde.seen, 2);
+  assert.equal(rde.mastered, 1); // only the stability-40 card is mature
+  assert.equal(rde.tags[0], "rde");
+  assert.equal(rde.group, "PURPL/Fundamentals");
+});

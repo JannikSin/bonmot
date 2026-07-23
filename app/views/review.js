@@ -1,16 +1,16 @@
-// Review decks: the knowledge sessions. A deck picker on top, then one
-// FSRS session per chosen deck (due cards first, then a capped intake of
-// new ones). Same engine and progress store as vocab, separated only by
-// the kn: id prefix; decks separate the knowledge cards from each other
-// so a session stays coherent (RDE vocab is not shuffled with SpaceX
-// interview prep). Deliberately thinner than Today: no tiers, no
-// resurface, no streak. Knowledge recall is a separate discipline from
-// the daily vocab streak.
+// Review decks: the knowledge sessions. A searchable, foldered deck
+// picker on top, then one FSRS session per chosen deck (due cards first,
+// then a capped intake of new ones). Same engine and progress store as
+// vocab, separated only by the kn: id prefix; decks separate the
+// knowledge cards from each other so a session stays one subject.
+// Recall first on every card, with an optional write mode (type your
+// answer before revealing). Deliberately thinner than Today: no tiers,
+// no resurface, no streak.
 
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
-import { deckSummaries } from "../review-bank.js";
-import { esc, progressHtml } from "./entry.js";
+import { deckSummaries, searchDecks, searchCards } from "../review-bank.js";
+import { esc, progressHtml, writeToggleHtml, writeInputHtml, typedAnswerHtml } from "./entry.js";
 
 // ponytail: fixed daily intake of new knowledge cards. A throttle vs
 // review debt (like queue.js newWordBudget) can be added if backlogs bite.
@@ -39,6 +39,9 @@ export function buildReviewSession(reviewBank, progress, now, deckId = null) {
 export function createReviewView(ctx) {
   const { reviewBank, progress, saveProgress } = ctx;
   let deckId = null; // null = showing the deck picker
+  let query = "";
+  let writeMode = false; // persists across cards in a session
+  let typedAnswer = "";
   let session = null;
   let revealed = false;
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
@@ -50,12 +53,14 @@ export function createReviewView(ctx) {
     counts = { reviewed: 0, correct: 0, introduced: 0 };
     sessionLapses = new Map();
     revealed = false;
+    typedAnswer = "";
   }
 
   function toPicker() {
     deckId = null;
     session = null;
     revealed = false;
+    typedAnswer = "";
   }
 
   function deckLabel() {
@@ -70,6 +75,7 @@ export function createReviewView(ctx) {
   function advance() {
     session.index++;
     revealed = false;
+    typedAnswer = "";
   }
 
   async function onGrade(rating) {
@@ -109,59 +115,124 @@ export function createReviewView(ctx) {
     }
     const c = reviewBank.byId.get(item.id);
     if (!c) {
-      // Card left the deck (edited/removed upstream): skip it cleanly.
       advance();
       return render(el);
     }
     const n = session.index + 1;
     const total = session.items.length;
     const label = c.type === "cloze" ? "cloze" : "recall";
-    const answer = `<div class="entry-body open"><p class="review-answer">${esc(c.answer)}</p>
+    const answer = `<div class="entry-body open">${typedAnswerHtml(typedAnswer)}<p class="review-answer">${esc(c.answer)}</p>
       <p class="review-source">${esc(c.source)}</p></div>`;
-    // Recall first, on new cards too: show the prompt, let it land, then
-    // reveal the answer. Tapping the card reveals (data-act on the card).
-    const recallCls = revealed ? "" : ' card--recall" data-act="reveal';
-    if (item.kind === "intro") {
-      el.innerHTML = `
-        <div class="card${recallCls}" data-kind="intro">
-          ${progressHtml(n, total)}
-          <p class="eyebrow">${esc(deckLabel())} &middot; new card &middot; ${n} of ${total}</p>
-          <div class="card-main">
-            <p class="review-prompt">${esc(c.prompt)}</p>
-            ${revealed ? answer : `<p class="recall-hint">New card. Try to answer it, then reveal.</p>`}
-          </div>
-          <div class="actions">
-            ${
-              revealed
-                ? `<button class="primary wide" data-act="continue">Continue</button>`
-                : `<button class="primary wide" data-act="reveal">Reveal</button>`
-            }
-          </div>
-        </div>`;
-    } else {
-      el.innerHTML = `
-        <div class="card${recallCls}" data-kind="review">
-          ${progressHtml(n, total)}
-          <p class="eyebrow">${esc(deckLabel())} &middot; ${label} &middot; ${n} of ${total}</p>
-          <div class="card-main">
-            <p class="review-prompt">${esc(c.prompt)}</p>
-            ${revealed ? answer : `<p class="recall-hint">Recall it, then reveal.</p>`}
-          </div>
-          <div class="actions">
-            ${
-              revealed
-                ? `<button class="danger" data-act="again">Again</button>
-                   <button class="primary" data-act="good">Got it</button>`
-                : `<button class="primary wide" data-act="reveal">Reveal</button>`
-            }
-          </div>
-        </div>`;
+    // Tap-to-reveal only when not typing: with the textarea open, a tap
+    // must reach the textarea, not flip the card.
+    const recall = !revealed;
+    const tappable = recall && !writeMode ? ' card--recall" data-act="reveal' : "";
+    const recallBody = writeMode
+      ? writeInputHtml()
+      : `<p class="recall-hint">${item.kind === "intro" ? "New card. Try to answer it, then reveal." : "Recall it, then reveal."}</p>`;
+    const eyebrow =
+      item.kind === "intro"
+        ? `${esc(deckLabel())} &middot; new card &middot; ${n} of ${total}`
+        : `${esc(deckLabel())} &middot; ${label} &middot; ${n} of ${total}`;
+    const primary =
+      item.kind === "intro"
+        ? `<button class="primary wide" data-act="continue">Continue</button>`
+        : `<button class="danger" data-act="again">Again</button>
+           <button class="primary" data-act="good">Got it</button>`;
+    el.innerHTML = `
+      <div class="card${tappable}" data-kind="${item.kind}">
+        ${progressHtml(n, total)}
+        <p class="eyebrow">${eyebrow}</p>
+        <div class="card-main">
+          <p class="review-prompt">${esc(c.prompt)}</p>
+          ${revealed ? answer : recallBody}
+        </div>
+        <div class="actions">
+          ${
+            revealed
+              ? primary
+              : `<button class="primary wide" data-act="reveal">Reveal</button>`
+          }
+        </div>
+        ${revealed ? "" : `<div class="write-row">${writeToggleHtml(writeMode)}</div>`}
+      </div>`;
+  }
+
+  // ---------- deck picker ----------
+
+  function deckTile(d) {
+    const ready = d.due + d.new;
+    const badge =
+      ready > 0
+        ? `<span class="deck-ready">${d.due} due &middot; ${d.new} new</span>`
+        : `<span class="deck-clear">all caught up</span>`;
+    const strength =
+      d.seen > 0
+        ? `<span class="deck-strength"><meter class="strength" min="0" max="${d.total}" value="${d.mastered}" aria-label="${d.mastered} of ${d.total} mastered"></meter><span class="strength-label">${d.mastered}/${d.total} mastered</span></span>`
+        : `<span class="strength-label faint">not started</span>`;
+    const tags = (d.tags || [])
+      .slice(0, 5)
+      .map((t) => `<span class="tag">${esc(t)}</span>`)
+      .join("");
+    return `
+      <button class="deck-tile" data-act="deck:${esc(d.id)}">
+        <span class="deck-head">
+          <span class="deck-label">${esc(d.label)}</span>
+          ${badge}
+        </span>
+        ${d.blurb ? `<span class="deck-blurb">${esc(d.blurb)}</span>` : ""}
+        ${strength}
+        ${tags ? `<span class="tags">${tags}</span>` : ""}
+      </button>`;
+  }
+
+  // Group decks into folders by their slash-delimited `group` path,
+  // preserving manifest order. Native <details> so folders collapse with
+  // zero JS (and the CSP has nothing to block).
+  function folderTree(decks) {
+    const tops = new Map();
+    for (const d of decks) {
+      const [top, sub] = (d.group || "Other").split("/");
+      if (!tops.has(top)) tops.set(top, { direct: [], subs: new Map() });
+      const t = tops.get(top);
+      if (sub) {
+        if (!t.subs.has(sub)) t.subs.set(sub, []);
+        t.subs.get(sub).push(d);
+      } else {
+        t.direct.push(d);
+      }
     }
+    let out = "";
+    for (const [top, t] of tops) {
+      out += `<details class="folder" open><summary class="folder-name">${esc(top)}</summary>`;
+      out += t.direct.map(deckTile).join("");
+      for (const [sub, list] of t.subs) {
+        out += `<details class="folder folder--sub" open><summary class="folder-name folder-name--sub">${esc(sub)}</summary>${list.map(deckTile).join("")}</details>`;
+      }
+      out += `</details>`;
+    }
+    return out;
+  }
+
+  function mentionsHtml(hits, all) {
+    if (!hits.length) return "";
+    const labelOf = (id) => all.find((d) => d.id === id)?.label || id;
+    const rows = hits
+      .map(
+        (h) => `
+      <button class="mention" data-act="deck:${esc(h.deckId)}">
+        <span class="mention-head"><span class="mention-deck">${esc(labelOf(h.deckId))}</span>
+        <span class="mention-count">${h.count} card${h.count === 1 ? "" : "s"}</span></span>
+        <span class="mention-sample">${esc(h.sample)}</span>
+      </button>`,
+      )
+      .join("");
+    return `<div class="mentions"><p class="eyebrow">Mentioned in cards</p>${rows}</div>`;
   }
 
   function pickerHtml() {
-    const decks = deckSummaries(reviewBank, progress, new Date());
-    if (decks.length === 0) {
+    const all = deckSummaries(reviewBank, progress, new Date());
+    if (all.length === 0) {
       return `
         <div class="card done">
           <p class="fleuron">&#10086;</p>
@@ -169,28 +240,22 @@ export function createReviewView(ctx) {
           <p class="honest">Themed decks live in data/review.json; #review notes build the second brain deck via npm run review-scan then npm run review-import.</p>
         </div>`;
     }
-    const tiles = decks
-      .map((d) => {
-        const ready = d.due + d.new;
-        const badge =
-          ready > 0
-            ? `<span class="deck-ready">${d.due} due &middot; ${d.new} new</span>`
-            : `<span class="deck-clear">all caught up</span>`;
-        return `
-          <button class="deck-tile" data-act="deck:${esc(d.id)}">
-            <span class="deck-head">
-              <span class="deck-label">${esc(d.label)}</span>
-              ${badge}
-            </span>
-            ${d.blurb ? `<span class="deck-blurb">${esc(d.blurb)}</span>` : ""}
-            <span class="deck-meta">${d.total} cards</span>
-          </button>`;
-      })
-      .join("");
+    const q = query.trim();
+    const decks = q ? searchDecks(all, q) : all;
+    const hits = q ? searchCards(reviewBank, q) : [];
+    const search = `<div class="deck-search"><input type="search" class="search-input" data-search placeholder="Search decks, authors, topics, card text" value="${esc(query)}" aria-label="Search decks, authors, and card text"></div>`;
+    let body;
+    if (!decks.length && !hits.length) {
+      body = `<p class="no-results">Nothing matches &ldquo;${esc(q)}&rdquo;.</p>`;
+    } else {
+      body = decks.length ? folderTree(decks) : "";
+    }
     return `
       <div class="deck-list">
-        <p class="eyebrow">Pick a deck</p>
-        ${tiles}
+        <p class="eyebrow">Decks</p>
+        ${search}
+        ${body}
+        ${mentionsHtml(hits, all)}
       </div>`;
   }
 
@@ -219,14 +284,23 @@ export function createReviewView(ctx) {
       </div>`;
   }
 
+  function onSearch(q) {
+    query = q;
+  }
+
   async function onAction(act) {
     if (act === "decks") toPicker();
     else if (act.startsWith("deck:")) start(act.slice(5));
-    else if (act === "reveal") revealed = true;
-    else if (act === "again") await onGrade("again");
+    else if (act === "write-on") writeMode = true;
+    else if (act === "write-off") writeMode = false;
+    else if (act === "reveal") {
+      const ta = document.querySelector("[data-write]");
+      if (ta) typedAnswer = ta.value;
+      revealed = true;
+    } else if (act === "again") await onGrade("again");
     else if (act === "good") await onGrade("good");
     else if (act === "continue") await onIntroContinue();
   }
 
-  return { render, onAction, restart: toPicker };
+  return { render, onAction, onSearch, restart: toPicker };
 }

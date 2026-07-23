@@ -21,12 +21,22 @@ All themed cards live in `data/review.json`:
 
 ```json
 {
-  "decks": [ { "id": "rde", "label": "RDE fundamentals", "blurb": "one line" } ],
+  "decks": [ { "id": "rde", "label": "RDE fundamentals", "blurb": "one line",
+               "group": "PURPL/Fundamentals", "tags": ["rde","heat-transfer"] } ],
   "cards": [ { "id": "kn:rde:001", "deck": "rde", "type": "qa",
               "prompt": "term", "answer": "teaching-voice definition",
               "source": "where it came from" } ]
 }
 ```
+
+`group` is a slash-delimited folder path; the picker renders it as collapsible
+folders (PURPL > Papers > deck tiles). `tags` are lowercase keywords (author,
+topic, year) that feed search. Search also scans card prompt/answer text, so a
+term or author surfaces every deck that mentions it, even without a matching
+tag. That is the "authors reuse the same vocabulary" lookup: search an author or
+a method and see which of your decks touch it. Per-deck strength on each tile is
+the share of the deck's seen cards that have reached FSRS maturity (stability of
+21 days or more); it is computed live, never stored.
 
 Rules, all enforced by `tests/review.test.js`:
 

@@ -127,6 +127,27 @@ async function boot() {
     go(btn.dataset.route);
   });
 
+  // Live deck search (Review tab). Re-render on each keystroke and put
+  // focus and caret back, since render replaces the whole view.
+  viewEl.addEventListener("input", (e) => {
+    const box = e.target.closest("[data-search]");
+    if (!box) return;
+    if (route === "review" && reviewView && reviewView.onSearch) {
+      const caret = box.selectionStart;
+      reviewView.onSearch(box.value);
+      render();
+      const nb = viewEl.querySelector("[data-search]");
+      if (nb) {
+        nb.focus();
+        try {
+          nb.setSelectionRange(caret, caret);
+        } catch {
+          /* some input types disallow setSelectionRange */
+        }
+      }
+    }
+  });
+
   // Keyboard for desktop: space or enter takes the primary action
   // (reveal, then continue or got-it); 1 marks it wrong, 2 marks it
   // right. Clicks the real buttons so it rides the same handler.

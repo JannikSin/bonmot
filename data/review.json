@@ -6,52 +6,137 @@
   {
    "id": "rde",
    "label": "RDE fundamentals",
-   "blurb": "The core detonation and heat transfer vocabulary. Learn these first; every paper assumes them."
+   "blurb": "The core detonation and heat transfer vocabulary. Learn these first; every paper assumes them.",
+   "group": "PURPL/Fundamentals",
+   "tags": [
+    "rde",
+    "detonation",
+    "heat-transfer",
+    "fundamentals",
+    "chapman-jouguet"
+   ]
   },
   {
    "id": "spacex",
    "label": "SpaceX interview prep",
-   "blurb": "Behavioral and technical questions, mapped to your HADES, RDE, and FEA work."
+   "blurb": "Behavioral and technical questions, mapped to your HADES, RDE, and FEA work.",
+   "group": "Career",
+   "tags": [
+    "spacex",
+    "interview",
+    "propulsion",
+    "fea",
+    "behavioral"
+   ]
   },
   {
    "id": "pv-theuerkauf",
    "label": "Paper: Theuerkauf 2013",
-   "blurb": "Pre-reading vocab for the AFIT H2/air RDE heat-exchanger thesis."
+   "blurb": "Pre-reading vocab for the AFIT H2/air RDE heat-exchanger thesis.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "theuerkauf",
+    "afit",
+    "rde",
+    "heat-transfer",
+    "calorimetry",
+    "h2-air",
+    "2013"
+   ]
   },
   {
    "id": "pv-roy",
    "label": "Paper: Roy 2016 NETL",
-   "blurb": "Pre-reading vocab for the effective-h versus thermocouple template paper."
+   "blurb": "Pre-reading vocab for the effective-h versus thermocouple template paper.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "roy",
+    "netl",
+    "rde",
+    "cfd",
+    "openfoam",
+    "effective-h",
+    "2016"
+   ]
   },
   {
    "id": "pv-pizzo",
    "label": "Paper: Pizzo IHCP",
-   "blurb": "Pre-reading vocab for the inverse heat conduction method paper."
+   "blurb": "Pre-reading vocab for the inverse heat conduction method paper.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "pizzo",
+    "ihcp",
+    "inverse-heat-conduction",
+    "glass",
+    "regularization"
+   ]
   },
   {
    "id": "pv-braun",
    "label": "Paper: Braun 2018 ROM",
-   "blurb": "Pre-reading vocab for the reduced-order RDC heat transfer model."
+   "blurb": "Pre-reading vocab for the reduced-order RDC heat transfer model.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "braun",
+    "rom",
+    "reduced-order-model",
+    "stanton",
+    "boundary-layer",
+    "2018"
+   ]
   },
   {
    "id": "pv-hades",
    "label": "Paper: HADES 2026",
-   "blurb": "Pre-reading vocab for your own engine paper."
+   "blurb": "Pre-reading vocab for your own engine paper.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "hades",
+    "rde",
+    "h2-air",
+    "phase-1",
+    "effective-h",
+    "thermocouple"
+   ]
   },
   {
    "id": "pv-deimos",
    "label": "Paper: Deimos 2026",
-   "blurb": "Pre-reading vocab for the sister methane engine paper."
+   "blurb": "Pre-reading vocab for the sister methane engine paper.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "deimos",
+    "methane",
+    "rdre",
+    "aerospike",
+    "injector"
+   ]
   },
   {
    "id": "pv-fatigue",
    "label": "Paper: Fatigue sweep",
-   "blurb": "Pre-reading vocab for the ANSYS thermal-fatigue sweep report."
+   "blurb": "Pre-reading vocab for the ANSYS thermal-fatigue sweep report.",
+   "group": "PURPL/Papers",
+   "tags": [
+    "fatigue",
+    "ansys",
+    "fea",
+    "low-cycle",
+    "structural",
+    "coffin-manson"
+   ]
   },
   {
    "id": "brain",
    "label": "Second brain",
-   "blurb": "Cards from your #review notes across the vaults."
+   "blurb": "Cards from your #review notes across the vaults.",
+   "group": "Notes",
+   "tags": [
+    "review",
+    "second-brain",
+    "notes"
+   ]
   }
  ],
  "cards": [
