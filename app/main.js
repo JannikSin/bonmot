@@ -12,6 +12,7 @@ import {
 } from "./store.js";
 import { createTodayView } from "./views/today.js";
 import { createReviewView } from "./views/review.js";
+import { createMapView } from "./views/map.js";
 import { createShelfView } from "./views/shelf.js";
 import { createPlacementView } from "./views/placement-view.js";
 
@@ -51,12 +52,20 @@ async function boot() {
   let route = meta.placementDone ? "today" : "placement";
   let todayView = null;
   let reviewView = null;
+  let mapView = null;
   let shelfView = null;
   let placementView = null;
 
   function go(r) {
     route = r;
     render();
+  }
+
+  // Tapping a deck box on the Map opens that deck's session on Review.
+  function onOpenDeck(id) {
+    if (!reviewView) reviewView = createReviewView(ctx);
+    reviewView.onAction("deck:" + id);
+    go("review");
   }
 
   function render() {
@@ -79,6 +88,9 @@ async function boot() {
     } else if (route === "review") {
       if (!reviewView) reviewView = createReviewView(ctx);
       reviewView.render(viewEl);
+    } else if (route === "map") {
+      if (!mapView) mapView = createMapView({ ...ctx, onOpenDeck });
+      mapView.render(viewEl);
     } else if (route === "shelf") {
       shelfView = createShelfView({
         ...ctx,
@@ -112,7 +124,9 @@ async function boot() {
           ? todayView
           : route === "review"
             ? reviewView
-            : null;
+            : route === "map"
+              ? mapView
+              : null;
     if (active && active.onAction) {
       await active.onAction(act);
       render();

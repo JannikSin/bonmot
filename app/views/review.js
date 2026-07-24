@@ -10,7 +10,13 @@
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
 import { deckSummaries, searchDecks, searchCards } from "../review-bank.js";
+import { markSessionDone } from "../stats.js";
 import { esc, progressHtml, writeToggleHtml, writeInputHtml, typedAnswerHtml } from "./entry.js";
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 // ponytail: fixed daily intake of new knowledge cards. A throttle vs
 // review debt (like queue.js newWordBudget) can be added if backlogs bite.
@@ -37,13 +43,14 @@ export function buildReviewSession(reviewBank, progress, now, deckId = null) {
 }
 
 export function createReviewView(ctx) {
-  const { reviewBank, progress, saveProgress } = ctx;
+  const { reviewBank, progress, saveProgress, meta, saveMeta } = ctx;
   let deckId = null; // null = showing the deck picker
   let query = "";
   let writeMode = false; // persists across cards in a session
   let typedAnswer = "";
   let session = null;
   let revealed = false;
+  let donePosted = false; // streak marked once per finished deck
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
   let sessionLapses = new Map();
 
@@ -54,6 +61,18 @@ export function createReviewView(ctx) {
     sessionLapses = new Map();
     revealed = false;
     typedAnswer = "";
+    donePosted = false;
+  }
+
+  // Finishing a Review deck counts toward the same daily study streak as
+  // the vocab session (studying is studying). Idempotent per day.
+  async function postDone() {
+    if (donePosted) return;
+    donePosted = true;
+    if (counts.reviewed + counts.introduced > 0) {
+      markSessionDone(meta, todayStr());
+      await saveMeta();
+    }
   }
 
   function toPicker() {
@@ -110,6 +129,7 @@ export function createReviewView(ctx) {
     }
     const item = current();
     if (!item) {
+      postDone();
       el.innerHTML = doneHtml();
       return;
     }
@@ -275,6 +295,7 @@ export function createReviewView(ctx) {
             ? `<dl class="stats">
                 <div><dt>Reviewed</dt><dd>${counts.reviewed}</dd></div>
                 <div><dt>New cards</dt><dd>${counts.introduced}</dd></div>
+                <div><dt>Streak</dt><dd>${meta.streakCount || 0} day${(meta.streakCount || 0) === 1 ? "" : "s"}</dd></div>
               </dl>`
             : ""
         }

@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   updateStreak,
+  markSessionDone,
   recordOutcome,
   retention,
   RETENTION_WINDOW,
@@ -66,4 +67,20 @@ test("retention rolls over a bounded window", () => {
   assert.equal(retention(recent), 90);
   assert.equal(retention([1, 0]), 50);
   assert.equal(retention([]), null);
+});
+
+test("markSessionDone: one streak shared by vocab and review, once per day", () => {
+  const meta = {};
+  // First session of the day (say a vocab session) starts the streak.
+  assert.equal(markSessionDone(meta, "2026-07-13"), true);
+  assert.equal(meta.streakCount, 1);
+  assert.equal(meta.sessionsCompleted, 1);
+  // A second session the same day (a review deck) does not double-count.
+  assert.equal(markSessionDone(meta, "2026-07-13"), false);
+  assert.equal(meta.streakCount, 1);
+  assert.equal(meta.sessionsCompleted, 1);
+  // Next day, any session extends the streak.
+  assert.equal(markSessionDone(meta, "2026-07-14"), true);
+  assert.equal(meta.streakCount, 2);
+  assert.equal(meta.sessionsCompleted, 2);
 });

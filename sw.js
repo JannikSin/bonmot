@@ -9,7 +9,7 @@
 
 // BUMP this whenever anything under vendor/ or icons/ changes; those
 // paths are cache-first and will serve stale forever otherwise.
-const CACHE_VERSION = "bonmot-v3";
+const CACHE_VERSION = "bonmot-v4";
 
 const SHELL = [
   "./",
@@ -27,6 +27,7 @@ const SHELL = [
   "./app/views/entry.js",
   "./app/views/today.js",
   "./app/views/review.js",
+  "./app/views/map.js",
   "./app/views/shelf.js",
   "./app/views/placement-view.js",
   "./data/en.json",

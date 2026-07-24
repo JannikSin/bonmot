@@ -8,7 +8,7 @@ import {
   dueWithinSession,
   INTRO_GAP,
 } from "../queue.js";
-import { updateStreak, recordOutcome, retention } from "../stats.js";
+import { markSessionDone, recordOutcome, retention } from "../stats.js";
 import {
   headwordHtml,
   bodyHtml,
@@ -134,12 +134,7 @@ export function createTodayView(ctx) {
   }
 
   async function onDone() {
-    const day = today();
-    if (meta.sessionDoneDay !== day) {
-      Object.assign(meta, updateStreak(meta, day));
-      meta.sessionDoneDay = day;
-      meta.sessionsCompleted = (meta.sessionsCompleted || 0) + 1;
-    }
+    markSessionDone(meta, today());
     await saveMeta(meta);
   }
 

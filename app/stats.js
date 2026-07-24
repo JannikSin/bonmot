@@ -38,6 +38,21 @@ export function updateStreak(meta, today) {
   return m;
 }
 
+/**
+ * Mark a study day done, once per day, from ANY session (the daily vocab
+ * session or a Review deck). Updates the streak and counters in place.
+ * Returns true if this was the first completed session today. Idempotent:
+ * a second session the same day is a no-op, so vocab and review share one
+ * honest "did you study today" streak.
+ */
+export function markSessionDone(meta, today) {
+  if (meta.sessionDoneDay === today) return false;
+  Object.assign(meta, updateStreak(meta, today));
+  meta.sessionDoneDay = today;
+  meta.sessionsCompleted = (meta.sessionsCompleted || 0) + 1;
+  return true;
+}
+
 /** Append a review outcome (true = good) to the rolling window. */
 export function recordOutcome(recent, good) {
   const next = [...(recent || []), good ? 1 : 0];

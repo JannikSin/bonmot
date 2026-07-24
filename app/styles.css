@@ -786,3 +786,151 @@ nav#nav button:focus-visible {
   padding-left: 12px;
   margin-bottom: 16px;
 }
+
+/* ---------- Map: knowledge as heat-shaded boxes ---------- */
+
+.map-view {
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+}
+.map-totals {
+  display: flex;
+  gap: 22px;
+  margin: 1vh 0 3vh;
+}
+.map-totals div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.map-totals dt {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--faded);
+}
+.map-totals dd {
+  font-family: var(--display);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--gilt);
+}
+
+.map-folder {
+  margin-bottom: 2.4vh;
+}
+.map-folder-name {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gilt);
+  margin-bottom: 10px;
+}
+.map-sub {
+  margin-top: 10px;
+}
+.map-sub-name {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--faded);
+  margin: 4px 0 8px;
+}
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.map-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 84px;
+  text-align: left;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  color: var(--paper);
+  font-family: var(--serif-body);
+}
+.map-box:focus-visible {
+  outline: 2px solid var(--gilt);
+  outline-offset: 2px;
+}
+.map-box-label {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.15;
+}
+.map-box-count {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--faded);
+}
+.map-due {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: var(--madder);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* Mastery heat: cold raised ink warming to gilt. */
+.heat-0 {
+  background: var(--ink-raised);
+}
+.heat-1 {
+  background: color-mix(in srgb, var(--gilt) 18%, var(--ink-raised));
+}
+.heat-2 {
+  background: color-mix(in srgb, var(--gilt) 40%, var(--ink-raised));
+}
+.heat-3 {
+  background: color-mix(in srgb, var(--gilt) 66%, var(--ink-raised));
+  color: var(--ink);
+}
+.heat-4 {
+  background: var(--gilt);
+  color: var(--ink);
+}
+.heat-3 .map-box-count,
+.heat-4 .map-box-count {
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2vh;
+}
+.map-legend-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--faded);
+}
+.map-swatch {
+  width: 22px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--hairline);
+}

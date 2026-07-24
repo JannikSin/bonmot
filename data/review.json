@@ -137,6 +137,21 @@
     "second-brain",
     "notes"
    ]
+  },
+  {
+   "id": "mem",
+   "label": "Memory methods",
+   "blurb": "How to remember: the evidence-based techniques, so you can use them on everything else here.",
+   "group": "Study",
+   "tags": [
+    "memory",
+    "study",
+    "retrieval-practice",
+    "spacing",
+    "mnemonics",
+    "method-of-loci",
+    "learning"
+   ]
   }
  ],
  "cards": [
@@ -1347,6 +1362,230 @@
    "prompt": "Creep-fatigue interaction",
    "answer": "A combined damage mode where slow, time dependent deformation at sustained high temperature, called creep, adds to the cycle by cycle damage from fatigue, so a part exposed to long hot dwell times needs an analysis that adds both effects together rather than treating fatigue alone as the whole story.",
    "source": "PURPL/20 Papers/report-fatigue-sweep.md"
+  },
+  {
+   "id": "kn:mem:001",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Retrieval Practice (the testing effect)",
+   "answer": "Retrieval practice means actively pulling information out of memory by self-quizzing rather than re-reading it. It works because each act of reconstruction is itself a memory-modifying event that strengthens the trace and makes it easier to find later, far more than passive review does.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:002",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Spacing (distributed practice)",
+   "answer": "Spacing means spreading study of the same material across sessions over time instead of cramming it into one block. It works because letting a memory partially fade before you retrieve it again forces harder, more durable re-encoding, and the varied contexts add more routes back to the memory.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:003",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Interleaving",
+   "answer": "Interleaving means mixing different problem types or topics within a session rather than practicing one type to completion first. It works because you must decide which concept or strategy applies before solving, so you practice the selection process itself instead of coasting on the previous answer.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:004",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Elaborative interrogation",
+   "answer": "Elaborative interrogation means repeatedly asking why a fact is true and answering it as you study. It works because generating a reason integrates the new fact into your existing knowledge, creating extra associative links that act as retrieval cues later.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:005",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Self-explanation",
+   "answer": "Self-explanation means explaining the steps of a solution or passage to yourself in your own words as you go. It works because explaining exposes and repairs gaps in your mental model in real time and ties each new step to what you already understand.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:006",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Desirable difficulties",
+   "answer": "Desirable difficulties are conditions that deliberately make study harder in productive ways, such as testing, spacing, and interleaving. They work because the same effort that slows apparent learning forces deeper encoding, so they raise long-term retention even though they lower performance during practice.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:007",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Which study techniques actually rank as high utility?",
+   "answer": "A large evidence review ranked practice testing and distributed practice as high utility, while popular habits like highlighting, re-reading, and summarizing rated low. It matters because it lets you spend effort on the methods the data supports instead of the ones that merely feel productive.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:008",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "The generation effect",
+   "answer": "The generation effect is that producing an answer yourself is remembered better than reading the same answer given to you. It works because generation engages more active encoding and commits you to a candidate, so the correct information sticks to the effort you spent, and even a corrected wrong guess helps.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:009",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Deep (semantic) encoding, levels of processing",
+   "answer": "Deep encoding means processing material for its meaning rather than its surface form when you learn it. It works because durability is a byproduct of depth: semantic analysis builds a richer and more distinctive trace, and depth at encoding predicts recall better than time spent or intent to learn.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:010",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Dual coding",
+   "answer": "Dual coding means pairing verbal information with a matching image or diagram. It works because verbal and visual material use partly separate channels, so encoding both gives you two independent routes to the same memory, and if one fails at recall the other can still succeed.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:011",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Chunking",
+   "answer": "Chunking means grouping many small items into a few larger meaningful units. It works because working memory holds only about seven independent units at once, and chunking packs more content into each slot by recoding raw items into a single meaningful pattern.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:012",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Method of loci (memory palace), and is memory trainable?",
+   "answer": "The method of loci places vivid images of items along a familiar route, then you mentally walk the route to recall them, exploiting strong spatial and visual memory. Memory is genuinely trainable: a few weeks of this training reshaped ordinary people's brain connectivity toward the pattern seen in elite memory athletes, with gains lasting months.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:013",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Deliberate practice and skilled memory",
+   "answer": "Deliberate practice is focused, feedback-driven repetition aimed at pushing a skill past its current ceiling. It shows memory span is a skill, not a fixed trait: an average person reached a 79-digit span through months of practice by inventing mnemonic encodings, so the limit moves with trained strategy rather than raw capacity.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:014",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Neuroplasticity of expertise",
+   "answer": "Sustained demanding use of a memory skill physically remodels the brain regions that support it. London taxi drivers who memorize the whole city have enlarged posterior hippocampi that scale with years on the job, direct structural evidence that the memory-supporting brain is shaped by practice rather than fixed.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:101",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Method of loci (memory palace)",
+   "answer": "You mentally place the things you want to remember at distinct spots along a familiar route or building, then walk the route to retrieve them in order. It works because your spatial memory is strong and stable, so each fragile fact gets a fixed location to live at.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:102",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Keyword mnemonic for vocabulary",
+   "answer": "For a hard term you pick a familiar word that sounds like part of it, then picture that word interacting with the term's meaning. The sound link plus the vivid image chain the new word to things you already know, which is why it works so well for foreign and technical vocabulary.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:103",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Pegword system",
+   "answer": "You pre-memorize rhyming number pegs like one-is-a-bun and two-is-a-shoe, then hang each list item on the peg for its position with an image. The permanent rhyming hooks give numbered or ranked lists a ready-made order to attach to.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:104",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Major system (phonetic number system)",
+   "answer": "You map each digit to a consonant sound, then turn number strings into words and images by adding vowels. It works because concrete picturable words are vastly easier to remember than abstract digits, so it is the go-to for long numbers.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:105",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Acronyms and acrostics",
+   "answer": "An acronym packs a list into one word from the first letters, and an acrostic turns those letters into a sentence. Both shrink many items into a single cue and lock in their order, so each initial letter jogs the item it stands for.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:106",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Story or chaining method",
+   "answer": "You weave separate items into one connected story where each leads to the next, so recalling the narrative pulls out the whole list in sequence. Stories supply causal and temporal links that disconnected lists lack, and connected material is recalled far better.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:107",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Why do songs, rhythm, and rhyme aid memory?",
+   "answer": "Setting text to a tune adds redundant cues like melody, meter, and rhyme that segment and constrain the words, and a well-learned tune scaffolds them. Once the melody itself is easy, sung text can be recalled better than the same text merely spoken.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:108",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Mind maps",
+   "answer": "A mind map is a radiant diagram with a central topic and branches fanning out into sub-topics, using color, keywords, and images. The branching tree shows hierarchy and association spatially, giving each idea a visual place instead of a line of prose.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:109",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Memory as spatial structure (boxes, trees, files)",
+   "answer": "You picture knowledge as physical containers such as a filing cabinet or nested boxes and file each fact into a visible slot. Giving abstract knowledge a concrete where turns retrieval into going to the right container rather than searching blank memory.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:110",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Bizarreness effect",
+   "answer": "Encoding an item as a strange, exaggerated, or absurd image can make it stick better than an ordinary one. The real driver is distinctiveness, so the trick works best when the bizarre item stands out among plain ones on a free-recall test.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:111",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Self-reference effect",
+   "answer": "Information tied to yourself, your experiences or opinions, is remembered better than the same information judged only for meaning. The self is a rich organizing structure, so relating material to it produces deeper, more connected encoding.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:112",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Dual coding and visualization",
+   "answer": "You pair a verbal label with a concrete mental picture so an idea is stored in both a word code and an image code. Two independent traces give two retrieval routes, and turning an abstract term into a picture reliably boosts recall.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:113",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "Who is credited with the method of loci, and how?",
+   "answer": "Tradition credits the Greek poet Simonides of Ceos, who identified guests crushed at a banquet by recalling where each had been seated. The story anchors the classical art of memory, where imagined places store ordered information.",
+   "source": "Memory science"
+  },
+  {
+   "id": "kn:mem:114",
+   "deck": "mem",
+   "type": "qa",
+   "prompt": "What is elaborative encoding?",
+   "answer": "Elaboration means processing new material by connecting it to existing knowledge, making it personal, vivid, bizarre, or emotional rather than repeating it flat. The deeper and more connected the processing, the stronger and more retrievable the memory.",
+   "source": "Memory science"
   }
  ]
 }
