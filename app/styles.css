@@ -934,3 +934,112 @@ nav#nav button:focus-visible {
   border-radius: 3px;
   border: 1px solid var(--hairline);
 }
+
+/* ---------- memory hooks, reverse, fortress ---------- */
+
+.hook {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--paper);
+  border-left: 2px solid var(--gilt);
+  padding-left: 12px;
+}
+.hook .label {
+  color: var(--gilt);
+}
+.hook-editbtn {
+  background: none;
+  border: none;
+  color: var(--faded);
+  font-family: var(--sans);
+  font-size: 11px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.hook-edit {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hook-input {
+  margin-top: 0;
+}
+
+/* Reverse direction: the recovered term leads, then its explanation. */
+.reverse-term {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(22px, 5.5vw, 30px);
+  line-height: 1.15;
+  color: var(--gilt);
+  margin-bottom: 10px;
+}
+
+.fortress-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  background: var(--gilt);
+  border: none;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 2.4vh;
+  cursor: pointer;
+  color: var(--ink);
+}
+.fortress-btn:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+.fortress-title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 22px;
+}
+.fortress-sub {
+  font-family: var(--sans);
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Fading strip on the Map: cards on the fringe of forgetting. */
+.fading {
+  margin-top: 2.4vh;
+  border-top: 1px solid var(--hairline);
+  padding-top: 1.4vh;
+}
+.fading-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--paper);
+  font-family: var(--serif-body);
+  padding: 9px 2px;
+  cursor: pointer;
+}
+.fading-prompt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fading-age {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--madder);
+  white-space: nowrap;
+}
+.map-fortress {
+  margin-top: 2vh;
+}

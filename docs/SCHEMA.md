@@ -70,6 +70,8 @@ Holds every non-vocab card: hand-authored themed decks (RDE fundamentals, SpaceX
 - `group`: optional slash-delimited folder path (e.g. `"PURPL/Papers"`); the picker renders it as collapsible folders (native `<details>`). Absent means the deck lands under an `"Other"` folder.
 - `tags`: optional array of lowercase keywords (author names, topics, years). They drive search: the picker's search box matches a query against label, blurb, group, and tags, and separately searches card prompt/answer text so a term surfaces every deck that mentions it. Per-deck strength on the picker is computed live, not stored: it is the count of the deck's seen cards whose FSRS `stability` has reached the mature threshold (21 days).
 - `type`: `qa` (prompt is a question) or `cloze` (prompt is a sentence with `___`). Both render as prompt then reveal-answer; the app only uses `type` for the eyebrow label.
+- `hook` (optional): a one-line memory aid (mnemonic, image, keyword, or etymology) shown under the answer on reveal. A user-written hook in `meta.hooks[cardId]` overrides it (device-local, never shipped).
+- `reverse` (optional): a REWORDED clue for the definition-to-term direction, deliberately not a copy of `answer` so recall tests understanding, not surface matching. When present, the session shows it (about 45% of reviews, never on first exposure) with the term as the answer. Null/absent for cards whose prompt is an open question.
 - Progress for these cards lives in the SAME `progress` store below, keyed by the `kn:` id. The vocab session (`app/queue.js`) filters `kn:` ids out; the Review decks (`app/views/review.js`) filter them in, then by chosen deck.
 
 ## Progress record (IndexedDB `progress` store, keyPath `id`)

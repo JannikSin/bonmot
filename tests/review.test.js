@@ -222,7 +222,7 @@ test("shipped data/review.json is valid: kn: ids, known decks, unique, no dashes
     for (const f of ["type", "prompt", "answer", "source"]) {
       assert.ok(c[f], `card ${c.id} missing ${f}`);
     }
-    const blob = c.prompt + c.answer + c.source;
+    const blob = c.prompt + c.answer + c.source + (c.hook || "") + (c.reverse || "");
     assert.ok(!blob.includes(EM) && !blob.includes(EN), `dash in card ${c.id}`);
   }
   for (const d of bank.decks || []) {

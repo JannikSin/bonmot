@@ -6,7 +6,7 @@
 // Tap a box to study that deck. Read-only otherwise. All heat is driven
 // by bucket classes, never inline styles, so the strict CSP is happy.
 
-import { deckSummaries } from "../review-bank.js";
+import { deckSummaries, atRiskCards } from "../review-bank.js";
 import { esc } from "./entry.js";
 
 // Ratio of mastered cards to a 0..4 heat bucket.
@@ -74,6 +74,18 @@ export function createMapView(ctx) {
     const totalMastered = decks.reduce((s, d) => s + d.mastered, 0);
     const totalDue = decks.reduce((s, d) => s + d.due, 0);
     const pct = totalCards ? Math.round((totalMastered / totalCards) * 100) : 0;
+    // Cards on the fringe of forgetting: overdue, oldest last-seen first.
+    const fading = atRiskCards(reviewBank, progress, new Date(), 6).filter((r) => r.overdueDays >= 0);
+    const fadingHtml = fading.length
+      ? `<div class="fading"><p class="eyebrow">Fading (defend these)</p>${fading
+          .map(
+            (r) => `<button class="fading-row" data-act="deck:${esc(r.deck)}">
+              <span class="fading-prompt">${esc(r.prompt)}</span>
+              <span class="fading-age">${r.daysSince}d unseen</span>
+            </button>`,
+          )
+          .join("")}</div>`
+      : "";
     el.innerHTML = `
       <div class="map-view">
         <p class="eyebrow">Your knowledge</p>
@@ -82,6 +94,11 @@ export function createMapView(ctx) {
           <div><dt>Overall</dt><dd>${pct}%</dd></div>
           <div><dt>Due</dt><dd>${totalDue}</dd></div>
         </dl>
+        <button class="fortress-btn map-fortress" data-act="fortress">
+          <span class="fortress-title">Fortress</span>
+          <span class="fortress-sub">defend the whole library, random cards from every deck</span>
+        </button>
+        ${fadingHtml}
         ${folderTree(decks)}
         <div class="map-legend" aria-hidden="true">
           <span class="map-legend-label">less</span>
@@ -96,7 +113,8 @@ export function createMapView(ctx) {
   }
 
   async function onAction(act) {
-    if (act.startsWith("deck:") && ctx.onOpenDeck) ctx.onOpenDeck(act.slice(5));
+    if (act === "fortress" && ctx.onOpenDeck) ctx.onOpenDeck("__fortress__");
+    else if (act.startsWith("deck:") && ctx.onOpenDeck) ctx.onOpenDeck(act.slice(5));
   }
 
   return { render, onAction };

@@ -1,30 +1,41 @@
 // Review decks: the knowledge sessions. A searchable, foldered deck
-// picker on top, then one FSRS session per chosen deck (due cards first,
-// then a capped intake of new ones). Same engine and progress store as
-// vocab, separated only by the kn: id prefix; decks separate the
-// knowledge cards from each other so a session stays one subject.
-// Recall first on every card, with an optional write mode (type your
-// answer before revealing). Deliberately thinner than Today: no tiers,
-// no resurface, no streak.
+// picker with a Fortress button on top, then FSRS sessions. Recall first
+// on every card, with an optional write mode. Cards can carry a memory
+// hook (a mnemonic or image, shown on reveal, and you can write your own)
+// and a reworded reverse clue so the app can quiz you definition to term
+// without letting you pattern match the memorized wording. Fortress mode
+// draws random cards from the whole library, interleaved, to defend
+// everything at once.
 
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
-import { deckSummaries, searchDecks, searchCards } from "../review-bank.js";
+import { deckSummaries, searchDecks, searchCards, atRiskCards } from "../review-bank.js";
 import { markSessionDone } from "../stats.js";
 import { esc, progressHtml, writeToggleHtml, writeInputHtml, typedAnswerHtml } from "./entry.js";
+
+const NEW_CAP = 10;
+const REVIEW_CAP = 60;
+const FORTRESS = "__fortress__";
+const FORTRESS_CAP = 40;
 
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+function shuffle(a) {
+  const r = a.slice();
+  for (let i = r.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
+function sample(a, n) {
+  return shuffle(a).slice(0, n);
+}
 
-// ponytail: fixed daily intake of new knowledge cards. A throttle vs
-// review debt (like queue.js newWordBudget) can be added if backlogs bite.
-const NEW_CAP = 10;
-const REVIEW_CAP = 60;
-
-// deckId null = every knowledge deck (used by tests and the "all" path);
-// a deck id restricts the session to that one deck's cards.
+// deckId null = every knowledge deck (used by tests); a deck id restricts
+// the session to that one deck's cards.
 export function buildReviewSession(reviewBank, progress, now, deckId = null) {
   const inDeck = (id) => !deckId || reviewBank.byId.get(id)?.deck === deckId;
   const known = [...progress.values()].filter((p) => p.id.startsWith("kn:") && inDeck(p.id));
@@ -44,35 +55,54 @@ export function buildReviewSession(reviewBank, progress, now, deckId = null) {
 
 export function createReviewView(ctx) {
   const { reviewBank, progress, saveProgress, meta, saveMeta } = ctx;
-  let deckId = null; // null = showing the deck picker
+  if (!meta.hooks) meta.hooks = {};
+  let deckId = null; // null = deck picker
   let query = "";
-  let writeMode = false; // persists across cards in a session
+  let writeMode = false;
   let typedAnswer = "";
+  let curDir = "forward"; // per-card direction, fixed at show time
+  let hookEditing = false;
   let session = null;
   let revealed = false;
-  let donePosted = false; // streak marked once per finished deck
+  let donePosted = false;
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
   let sessionLapses = new Map();
 
+  // Fortress: random instances from the ENTIRE library, interleaved, so
+  // one session defends every deck. Due and most-overdue cards first, then
+  // a random sample of already-known cards for extra defense, plus a few
+  // new, all shuffled together.
+  function buildFortressSession() {
+    const now = new Date();
+    const learning = [...progress.values()].filter((p) => p.id.startsWith("kn:") && p.state === "learning");
+    const due = learning.filter((p) => new Date(p.card.due) <= now).map((p) => p.id);
+    const notDue = learning.filter((p) => new Date(p.card.due) > now).map((p) => p.id);
+    const fresh = reviewBank.cards.filter((c) => !progress.has(c.id)).map((c) => c.id);
+    const pool = [...new Set([...due, ...sample(notDue, 12), ...sample(fresh, 6)])];
+    const items = shuffle(pool)
+      .slice(0, FORTRESS_CAP)
+      .map((id) => ({ kind: progress.has(id) ? "review" : "intro", id }));
+    return { items, index: 0 };
+  }
+
+  function pickDir() {
+    const item = current();
+    const c = item && reviewBank.byId.get(item.id);
+    // Reverse only on genuine review (not first exposure) and only when a
+    // reworded clue exists. ~45% of the time, for variety.
+    curDir = c && c.reverse && item.kind !== "intro" && Math.random() < 0.45 ? "reverse" : "forward";
+  }
+
   function start(id) {
     deckId = id;
-    session = buildReviewSession(reviewBank, progress, new Date(), id);
+    session = id === FORTRESS ? buildFortressSession() : buildReviewSession(reviewBank, progress, new Date(), id);
     counts = { reviewed: 0, correct: 0, introduced: 0 };
     sessionLapses = new Map();
     revealed = false;
     typedAnswer = "";
+    hookEditing = false;
     donePosted = false;
-  }
-
-  // Finishing a Review deck counts toward the same daily study streak as
-  // the vocab session (studying is studying). Idempotent per day.
-  async function postDone() {
-    if (donePosted) return;
-    donePosted = true;
-    if (counts.reviewed + counts.introduced > 0) {
-      markSessionDone(meta, todayStr());
-      await saveMeta();
-    }
+    pickDir();
   }
 
   function toPicker() {
@@ -80,21 +110,36 @@ export function createReviewView(ctx) {
     session = null;
     revealed = false;
     typedAnswer = "";
+    hookEditing = false;
   }
 
-  function deckLabel() {
-    const d = reviewBank.decks.find((d) => d.id === deckId);
-    return d ? d.label : deckId;
+  function deckLabel(id = deckId) {
+    if (id === FORTRESS) return "Fortress";
+    const d = reviewBank.decks.find((d) => d.id === id);
+    return d ? d.label : id;
   }
 
   function current() {
     return session && session.items[session.index];
   }
-
   function advance() {
     session.index++;
     revealed = false;
     typedAnswer = "";
+    hookEditing = false;
+    pickDir();
+  }
+  function hookOf(card) {
+    return meta.hooks[card.id] || card.hook || "";
+  }
+
+  async function postDone() {
+    if (donePosted) return;
+    donePosted = true;
+    if (counts.reviewed + counts.introduced > 0) {
+      markSessionDone(meta, todayStr());
+      await saveMeta();
+    }
   }
 
   async function onGrade(rating) {
@@ -122,6 +167,18 @@ export function createReviewView(ctx) {
     advance();
   }
 
+  async function saveHook() {
+    const box = document.querySelector("[data-hookedit]");
+    const item = current();
+    if (box && item) {
+      const v = box.value.trim();
+      if (v) meta.hooks[item.id] = v;
+      else delete meta.hooks[item.id];
+      await saveMeta();
+    }
+    hookEditing = false;
+  }
+
   function render(el) {
     if (deckId === null) {
       el.innerHTML = pickerHtml();
@@ -140,39 +197,56 @@ export function createReviewView(ctx) {
     }
     const n = session.index + 1;
     const total = session.items.length;
-    const label = c.type === "cloze" ? "cloze" : "recall";
-    const answer = `<div class="entry-body open">${typedAnswerHtml(typedAnswer)}<p class="review-answer">${esc(c.answer)}</p>
+    const reverse = curDir === "reverse";
+    const hook = hookOf(c);
+    const cardDeck = deckId === FORTRESS ? deckLabel(c.deck) : deckLabel();
+    const kindLabel = item.kind === "intro" ? "new card" : reverse ? "name it" : c.type === "cloze" ? "cloze" : "recall";
+    const eyebrow = `${esc(cardDeck)} &middot; ${kindLabel} &middot; ${n} of ${total}`;
+
+    // The prompt: forward shows the term/question; reverse shows the
+    // reworded clue and asks for the term.
+    const promptHtml = reverse
+      ? `<p class="review-prompt">${esc(c.reverse)}</p>`
+      : `<p class="review-prompt">${esc(c.prompt)}</p>`;
+
+    // The answer face. Reverse reveals the term first (that was the goal),
+    // then the full explanation. Both show the hook and a place to edit it.
+    const hookBlock = hookEditing
+      ? `<div class="hook-edit"><textarea class="write-input hook-input" data-hookedit rows="2" placeholder="Your own hook: an image, a rhyme, anything">${esc(meta.hooks[c.id] || "")}</textarea>
+           <button class="write-toggle" data-act="hook-save">Save hook</button></div>`
+      : hook
+        ? `<p class="hook"><span class="label">hook</span> ${esc(hook)} <button class="hook-editbtn" data-act="hook-edit" aria-label="Edit hook">edit</button></p>`
+        : `<div class="write-row"><button class="write-toggle" data-act="hook-edit">Add a memory hook</button></div>`;
+    const answerInner = reverse
+      ? `<p class="reverse-term">${esc(c.prompt)}</p><p class="review-answer">${esc(c.answer)}</p>`
+      : `<p class="review-answer">${esc(c.answer)}</p>`;
+    const answer = `<div class="entry-body open">${typedAnswerHtml(typedAnswer)}${answerInner}
+      ${hookBlock}
       <p class="review-source">${esc(c.source)}</p></div>`;
-    // Tap-to-reveal only when not typing: with the textarea open, a tap
-    // must reach the textarea, not flip the card.
-    const recall = !revealed;
-    const tappable = recall && !writeMode ? ' card--recall" data-act="reveal' : "";
-    const recallBody = writeMode
-      ? writeInputHtml()
-      : `<p class="recall-hint">${item.kind === "intro" ? "New card. Try to answer it, then reveal." : "Recall it, then reveal."}</p>`;
-    const eyebrow =
-      item.kind === "intro"
-        ? `${esc(deckLabel())} &middot; new card &middot; ${n} of ${total}`
-        : `${esc(deckLabel())} &middot; ${label} &middot; ${n} of ${total}`;
+
+    const recallHint = reverse
+      ? "Name the term this describes, then reveal."
+      : item.kind === "intro"
+        ? "New card. Try to answer it, then reveal."
+        : "Recall it, then reveal.";
+    const recallBody = writeMode ? writeInputHtml() : `<p class="recall-hint">${recallHint}</p>`;
+    const tappable = !revealed && !writeMode ? ' card--recall" data-act="reveal' : "";
     const primary =
-      item.kind === "intro"
+      item.kind === "intro" && !reverse
         ? `<button class="primary wide" data-act="continue">Continue</button>`
         : `<button class="danger" data-act="again">Again</button>
            <button class="primary" data-act="good">Got it</button>`;
+
     el.innerHTML = `
       <div class="card${tappable}" data-kind="${item.kind}">
         ${progressHtml(n, total)}
         <p class="eyebrow">${eyebrow}</p>
         <div class="card-main">
-          <p class="review-prompt">${esc(c.prompt)}</p>
+          ${promptHtml}
           ${revealed ? answer : recallBody}
         </div>
         <div class="actions">
-          ${
-            revealed
-              ? primary
-              : `<button class="primary wide" data-act="reveal">Reveal</button>`
-          }
+          ${revealed ? primary : `<button class="primary wide" data-act="reveal">Reveal</button>`}
         </div>
         ${revealed ? "" : `<div class="write-row">${writeToggleHtml(writeMode)}</div>`}
       </div>`;
@@ -206,9 +280,6 @@ export function createReviewView(ctx) {
       </button>`;
   }
 
-  // Group decks into folders by their slash-delimited `group` path,
-  // preserving manifest order. Native <details> so folders collapse with
-  // zero JS (and the CSP has nothing to block).
   function folderTree(decks) {
     const tops = new Map();
     for (const d of decks) {
@@ -250,6 +321,18 @@ export function createReviewView(ctx) {
     return `<div class="mentions"><p class="eyebrow">Mentioned in cards</p>${rows}</div>`;
   }
 
+  function fortressBtn() {
+    const now = new Date();
+    const dueTotal = [...progress.values()].filter(
+      (p) => p.id.startsWith("kn:") && p.state === "learning" && new Date(p.card.due) <= now,
+    ).length;
+    const sub = dueTotal > 0 ? `${dueTotal} due across the library` : "a random tour of everything you know";
+    return `<button class="fortress-btn" data-act="fortress">
+        <span class="fortress-title">Fortress</span>
+        <span class="fortress-sub">${sub}</span>
+      </button>`;
+  }
+
   function pickerHtml() {
     const all = deckSummaries(reviewBank, progress, new Date());
     if (all.length === 0) {
@@ -272,6 +355,7 @@ export function createReviewView(ctx) {
     }
     return `
       <div class="deck-list">
+        ${q ? "" : fortressBtn()}
         <p class="eyebrow">Decks</p>
         ${search}
         ${body}
@@ -281,10 +365,10 @@ export function createReviewView(ctx) {
 
   function doneHtml() {
     const ran = counts.reviewed + counts.introduced > 0;
-    const title = ran ? "Deck complete" : "Nothing due here";
+    const title = ran ? "complete" : "nothing due here";
     const body = ran
       ? "The next cards arrive as they come due."
-      : "No cards in this deck are scheduled yet. New ones arrive with tomorrow.";
+      : "No cards are scheduled yet. New ones arrive with tomorrow.";
     return `
       <div class="card done">
         <p class="fleuron">&#10086;</p>
@@ -311,9 +395,12 @@ export function createReviewView(ctx) {
 
   async function onAction(act) {
     if (act === "decks") toPicker();
+    else if (act === "fortress") start(FORTRESS);
     else if (act.startsWith("deck:")) start(act.slice(5));
     else if (act === "write-on") writeMode = true;
     else if (act === "write-off") writeMode = false;
+    else if (act === "hook-edit") hookEditing = true;
+    else if (act === "hook-save") await saveHook();
     else if (act === "reveal") {
       const ta = document.querySelector("[data-write]");
       if (ta) typedAnswer = ta.value;

@@ -86,6 +86,25 @@ export function searchDecks(summaries, query) {
   });
 }
 
+// Cards on the fringe of forgetting: learning cards sorted by how long
+// past due they are (positive overdueDays), then by how long since you
+// last saw them. This is the "you have not seen this in two weeks, not
+// good" signal, drawn straight from the FSRS schedule and last_review.
+export function atRiskCards(reviewBank, progress, now, limit = 8) {
+  const rows = [];
+  for (const p of progress.values()) {
+    if (!p.id.startsWith("kn:") || p.state !== "learning") continue;
+    const card = reviewBank.byId.get(p.id);
+    if (!card) continue;
+    const last = p.card.last_review ? new Date(p.card.last_review) : new Date(p.addedAt);
+    const daysSince = Math.max(0, Math.floor((now - last) / 864e5));
+    const overdueDays = Math.floor((now - new Date(p.card.due)) / 864e5);
+    rows.push({ id: p.id, deck: card.deck, prompt: card.prompt, daysSince, overdueDays });
+  }
+  rows.sort((a, b) => b.overdueDays - a.overdueDays || b.daysSince - a.daysSince);
+  return rows.slice(0, limit);
+}
+
 // Search card CONTENT (prompt + answer) across every deck. This is the
 // "an author reuses the same terms" lookup: type a term, see which decks
 // mention it and how often. Returns [{ deckId, count, sample }] sorted by

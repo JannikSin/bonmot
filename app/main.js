@@ -61,10 +61,11 @@ async function boot() {
     render();
   }
 
-  // Tapping a deck box on the Map opens that deck's session on Review.
+  // Tapping a deck box (or the Fortress button) on the Map starts that
+  // session on Review.
   function onOpenDeck(id) {
     if (!reviewView) reviewView = createReviewView(ctx);
-    reviewView.onAction("deck:" + id);
+    reviewView.onAction(id === "__fortress__" ? "fortress" : "deck:" + id);
     go("review");
   }
 
