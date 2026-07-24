@@ -6,7 +6,7 @@
 // Tap a box to study that deck. Read-only otherwise. All heat is driven
 // by bucket classes, never inline styles, so the strict CSP is happy.
 
-import { deckSummaries, atRiskCards } from "../review-bank.js";
+import { deckSummaries, atRiskCards, groupByFolder } from "../review-bank.js";
 import { esc } from "./entry.js";
 
 // Ratio of mastered cards to a 0..4 heat bucket.
@@ -35,18 +35,7 @@ export function createMapView(ctx) {
   }
 
   function folderTree(decks) {
-    const tops = new Map();
-    for (const d of decks) {
-      const [top, sub] = (d.group || "Other").split("/");
-      if (!tops.has(top)) tops.set(top, { direct: [], subs: new Map() });
-      const t = tops.get(top);
-      if (sub) {
-        if (!t.subs.has(sub)) t.subs.set(sub, []);
-        t.subs.get(sub).push(d);
-      } else {
-        t.direct.push(d);
-      }
-    }
+    const tops = groupByFolder(decks);
     let out = "";
     for (const [top, t] of tops) {
       out += `<section class="map-folder"><h2 class="map-folder-name">${esc(top)}</h2>`;

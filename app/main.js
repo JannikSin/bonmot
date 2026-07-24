@@ -137,8 +137,10 @@ async function boot() {
   navEl.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-route]");
     if (!btn) return;
-    if (btn.dataset.route === "today" && route !== "today") todayView = null;
-    if (btn.dataset.route === "review" && route !== "review") reviewView = null;
+    // Do NOT rebuild the view on tab switch: keep each view's session and
+    // position so glancing at the Map (or another tab) and coming back
+    // resumes exactly where you were, instead of dumping you to the
+    // start. Views rebuild themselves when their own session finishes.
     go(btn.dataset.route);
   });
 

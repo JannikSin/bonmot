@@ -5,6 +5,12 @@
 
 export const RETENTION_WINDOW = 200;
 
+/** Local calendar day as YYYY-MM-DD. Shared by every view that stamps a
+ *  study day, so the format can never drift between them. */
+export function dayStr(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 /** @param {string} a @param {string} b YYYY-MM-DD */
 export function dayDiff(a, b) {
   return Math.round((new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z")) / 864e5);

@@ -8,7 +8,7 @@ import {
   dueWithinSession,
   INTRO_GAP,
 } from "../queue.js";
-import { markSessionDone, recordOutcome, retention } from "../stats.js";
+import { markSessionDone, recordOutcome, retention, dayStr } from "../stats.js";
 import {
   headwordHtml,
   bodyHtml,
@@ -18,10 +18,7 @@ import {
   typedAnswerHtml,
 } from "./entry.js";
 
-function today() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+const today = dayStr;
 
 export function createTodayView(ctx) {
   const { bank, progress, meta, saveProgress, saveMeta } = ctx;
@@ -134,7 +131,12 @@ export function createTodayView(ctx) {
   }
 
   async function onDone() {
-    markSessionDone(meta, today());
+    // Honest stats: a day with nothing due and nothing studied is not a
+    // completed session, so it must not extend the streak (matches the
+    // Review deck guard). Only real work counts.
+    if (counts.reviewed + counts.introduced > 0) {
+      markSessionDone(meta, today());
+    }
     await saveMeta(meta);
   }
 

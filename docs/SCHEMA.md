@@ -106,7 +106,9 @@ Holds every non-vocab card: hand-authored themed decks (RDE fundamentals, SpaceX
 
 ## Meta (IndexedDB `meta` store, key `"meta"`)
 
-`startTier`, `placementDone`, `streakCount`, `streakLastDay`, `streakGraceDay`, `sessionDoneDay`, `sessionsCompleted`, `introDay`, `introUsedToday`, `recent` (rolling 0/1 array, window 200), `flagged` (word ids), `lastBackup` (ISO).
+`startTier`, `placementDone`, `streakCount`, `streakLastDay`, `streakGraceDay`, `sessionDoneDay`, `sessionsCompleted`, `introDay`, `introUsedToday`, `recent` (rolling 0/1 array, window 200), `flagged` (word ids), `lastBackup` (ISO), `hooks` (`{ "kn:...": "user-written hook" }`, device-local overrides of a card's `hook`).
+
+`sanitizeMeta` is a strict allowlist: any meta key not named here is dropped on import, so a new meta field MUST be added there or it silently vanishes on backup restore (this bit `hooks` once).
 
 ## Backup file
 

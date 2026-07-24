@@ -104,3 +104,29 @@ test("unknown state strings are coerced to learning", () => {
   const v = validateImport(p, bankIds);
   assert.equal(v.cleaned[0].state, "learning");
 });
+
+test("meta.hooks survives import (device-local user hooks are not dropped)", () => {
+  const bankIds = new Set(["perspicacious"]);
+  const p = newProgress("perspicacious", new Date("2026-07-17T10:00:00Z"));
+  const payload = {
+    app: "bonmot",
+    version: 1,
+    meta: {
+      startTier: 2,
+      placementDone: true,
+      hooks: {
+        "kn:rde:001": "my own image for detonation",
+        "notkn:bad": "should be dropped, wrong prefix",
+        "kn:rde:002": 12345, // non-string, dropped
+      },
+      bogusKey: "dropped",
+    },
+    progress: [p],
+  };
+  const v = validateImport(payload, bankIds);
+  assert.ok(v.ok);
+  assert.equal(v.meta.hooks["kn:rde:001"], "my own image for detonation");
+  assert.ok(!("notkn:bad" in v.meta.hooks), "non-kn key dropped");
+  assert.ok(!("kn:rde:002" in v.meta.hooks), "non-string value dropped");
+  assert.ok(!("bogusKey" in v.meta), "unknown meta key still dropped");
+});

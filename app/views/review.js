@@ -9,8 +9,8 @@
 
 import { grade, newProgress, isDue } from "../srs.js";
 import { requeue, dueWithinSession, INTRO_GAP } from "../queue.js";
-import { deckSummaries, searchDecks, searchCards, atRiskCards } from "../review-bank.js";
-import { markSessionDone } from "../stats.js";
+import { deckSummaries, searchDecks, searchCards, atRiskCards, groupByFolder } from "../review-bank.js";
+import { markSessionDone, dayStr } from "../stats.js";
 import { esc, progressHtml, writeToggleHtml, writeInputHtml, typedAnswerHtml } from "./entry.js";
 
 const NEW_CAP = 10;
@@ -18,10 +18,6 @@ const REVIEW_CAP = 60;
 const FORTRESS = "__fortress__";
 const FORTRESS_CAP = 40;
 
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 function shuffle(a) {
   const r = a.slice();
   for (let i = r.length - 1; i > 0; i--) {
@@ -53,6 +49,23 @@ export function buildReviewSession(reviewBank, progress, now, deckId = null) {
   return { items, index: 0 };
 }
 
+// Fortress: random instances from the ENTIRE library, interleaved, so one
+// session defends every deck. Due cards first (uncapped into the pool),
+// then a random sample of already-known cards for extra defense, plus a
+// few new, all shuffled together and capped. Exported so the pool logic
+// is testable; the view calls it with its own bank/progress.
+export function buildFortressSession(reviewBank, progress, now) {
+  const learning = [...progress.values()].filter((p) => p.id.startsWith("kn:") && p.state === "learning");
+  const due = learning.filter((p) => new Date(p.card.due) <= now).map((p) => p.id);
+  const notDue = learning.filter((p) => new Date(p.card.due) > now).map((p) => p.id);
+  const fresh = reviewBank.cards.filter((c) => !progress.has(c.id)).map((c) => c.id);
+  const pool = [...new Set([...due, ...sample(notDue, 12), ...sample(fresh, 6)])];
+  const items = shuffle(pool)
+    .slice(0, FORTRESS_CAP)
+    .map((id) => ({ kind: progress.has(id) ? "review" : "intro", id }));
+  return { items, index: 0 };
+}
+
 export function createReviewView(ctx) {
   const { reviewBank, progress, saveProgress, meta, saveMeta } = ctx;
   if (!meta.hooks) meta.hooks = {};
@@ -68,23 +81,6 @@ export function createReviewView(ctx) {
   let counts = { reviewed: 0, correct: 0, introduced: 0 };
   let sessionLapses = new Map();
 
-  // Fortress: random instances from the ENTIRE library, interleaved, so
-  // one session defends every deck. Due and most-overdue cards first, then
-  // a random sample of already-known cards for extra defense, plus a few
-  // new, all shuffled together.
-  function buildFortressSession() {
-    const now = new Date();
-    const learning = [...progress.values()].filter((p) => p.id.startsWith("kn:") && p.state === "learning");
-    const due = learning.filter((p) => new Date(p.card.due) <= now).map((p) => p.id);
-    const notDue = learning.filter((p) => new Date(p.card.due) > now).map((p) => p.id);
-    const fresh = reviewBank.cards.filter((c) => !progress.has(c.id)).map((c) => c.id);
-    const pool = [...new Set([...due, ...sample(notDue, 12), ...sample(fresh, 6)])];
-    const items = shuffle(pool)
-      .slice(0, FORTRESS_CAP)
-      .map((id) => ({ kind: progress.has(id) ? "review" : "intro", id }));
-    return { items, index: 0 };
-  }
-
   function pickDir() {
     const item = current();
     const c = item && reviewBank.byId.get(item.id);
@@ -95,7 +91,10 @@ export function createReviewView(ctx) {
 
   function start(id) {
     deckId = id;
-    session = id === FORTRESS ? buildFortressSession() : buildReviewSession(reviewBank, progress, new Date(), id);
+    session =
+      id === FORTRESS
+        ? buildFortressSession(reviewBank, progress, new Date())
+        : buildReviewSession(reviewBank, progress, new Date(), id);
     counts = { reviewed: 0, correct: 0, introduced: 0 };
     sessionLapses = new Map();
     revealed = false;
@@ -137,7 +136,7 @@ export function createReviewView(ctx) {
     if (donePosted) return;
     donePosted = true;
     if (counts.reviewed + counts.introduced > 0) {
-      markSessionDone(meta, todayStr());
+      markSessionDone(meta, dayStr());
       await saveMeta();
     }
   }
@@ -229,7 +228,7 @@ export function createReviewView(ctx) {
       : item.kind === "intro"
         ? "New card. Try to answer it, then reveal."
         : "Recall it, then reveal.";
-    const recallBody = writeMode ? writeInputHtml() : `<p class="recall-hint">${recallHint}</p>`;
+    const recallBody = writeMode ? writeInputHtml(reverse) : `<p class="recall-hint">${recallHint}</p>`;
     const tappable = !revealed && !writeMode ? ' card--recall" data-act="reveal' : "";
     const primary =
       item.kind === "intro" && !reverse
@@ -281,18 +280,7 @@ export function createReviewView(ctx) {
   }
 
   function folderTree(decks) {
-    const tops = new Map();
-    for (const d of decks) {
-      const [top, sub] = (d.group || "Other").split("/");
-      if (!tops.has(top)) tops.set(top, { direct: [], subs: new Map() });
-      const t = tops.get(top);
-      if (sub) {
-        if (!t.subs.has(sub)) t.subs.set(sub, []);
-        t.subs.get(sub).push(d);
-      } else {
-        t.direct.push(d);
-      }
-    }
+    const tops = groupByFolder(decks);
     let out = "";
     for (const [top, t] of tops) {
       out += `<details class="folder" open><summary class="folder-name">${esc(top)}</summary>`;
@@ -326,7 +314,12 @@ export function createReviewView(ctx) {
     const dueTotal = [...progress.values()].filter(
       (p) => p.id.startsWith("kn:") && p.state === "learning" && new Date(p.card.due) <= now,
     ).length;
-    const sub = dueTotal > 0 ? `${dueTotal} due across the library` : "a random tour of everything you know";
+    // Honest about what it draws: due cards first, then a shuffled spread
+    // across your decks. Not literally every card at once.
+    const sub =
+      dueTotal > 0
+        ? `${dueTotal} due, then a spread across your decks`
+        : "a shuffled spread across your decks";
     return `<button class="fortress-btn" data-act="fortress">
         <span class="fortress-title">Fortress</span>
         <span class="fortress-sub">${sub}</span>
@@ -340,7 +333,7 @@ export function createReviewView(ctx) {
         <div class="card done">
           <p class="fleuron">&#10086;</p>
           <h1 class="done-title">No review decks yet</h1>
-          <p class="honest">Themed decks live in data/review.json; #review notes build the second brain deck via npm run review-scan then npm run review-import.</p>
+          <p class="honest">No review decks yet. Once decks are added they show up here to study.</p>
         </div>`;
     }
     const q = query.trim();

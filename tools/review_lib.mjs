@@ -299,7 +299,17 @@ export function mergeBank(existing, approved) {
     if (!/^kn:/.test(c.id) || !c.prompt || !c.answer) continue;
     if (byId.has(c.id)) updated++;
     else added++;
-    byId.set(c.id, { id: c.id, type: c.type, prompt: c.prompt, answer: c.answer, source: c.source });
+    // Spread the existing card first so hand-added fields (deck, hook,
+    // reverse, group, tags) survive a re-import; only the four generated
+    // fields are overwritten. Merge-not-drop applies to fields too.
+    byId.set(c.id, {
+      ...byId.get(c.id),
+      id: c.id,
+      type: c.type,
+      prompt: c.prompt,
+      answer: c.answer,
+      source: c.source,
+    });
   }
   const cards = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
   return { cards, added, updated };

@@ -47,6 +47,14 @@ Rules, all enforced by `tests/review.test.js`:
 - No em or en dashes anywhere. Use commas, colons, or "to" for ranges.
 - Definitions are original teaching-voice prose, not dictionary phrasing.
 
+Cards may also carry `hook` (a memory aid shown on reveal) and `reverse` (a
+reworded definition-to-term clue). These live only on hand-authored decks.
+The `#review` importer (`mergeBank`) now spreads the existing card before
+overwriting the four generated fields, so a hook or reverse added by hand to
+an imported card survives re-import; still, prefer adding them to hand-authored
+decks. A user's own hook edits are stored per-device in `meta.hooks`, never in
+this file.
+
 Add cards, then reload the app. A deck with a manifest entry but zero
 cards is hidden until it has at least one card, so you can stub a deck's
 label ahead of filling it.

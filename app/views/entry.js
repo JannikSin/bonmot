@@ -22,8 +22,11 @@ export function writeToggleHtml(on) {
     ? `<button class="write-toggle" data-act="write-off">Hide typing</button>`
     : `<button class="write-toggle" data-act="write-on">Type your answer</button>`;
 }
-export function writeInputHtml() {
-  return `<textarea class="write-input" data-write rows="3" placeholder="Type what you recall, then reveal to compare" aria-label="Type your answer"></textarea>`;
+export function writeInputHtml(reverse = false) {
+  const ph = reverse
+    ? "Name the term this describes, then reveal to compare"
+    : "Type what you recall, then reveal to compare";
+  return `<textarea class="write-input" data-write rows="3" placeholder="${ph}" aria-label="Type your answer"></textarea>`;
 }
 export function typedAnswerHtml(typed) {
   if (!typed) return "";

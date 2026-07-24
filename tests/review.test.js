@@ -278,3 +278,60 @@ test("deckSummaries counts mastered cards by FSRS stability", async () => {
   assert.equal(rde.tags[0], "rde");
   assert.equal(rde.group, "PURPL/Fundamentals");
 });
+
+test("atRiskCards ranks most-overdue first, then longest unseen", async () => {
+  const { atRiskCards } = await import("../app/review-bank.js");
+  const now = new Date("2026-08-01T00:00:00Z");
+  const mk = (id, dueDaysAgo, lastDaysAgo) => [
+    id,
+    {
+      id,
+      state: "learning",
+      addedAt: new Date(now - 30 * 864e5).toISOString(),
+      card: {
+        due: new Date(now - dueDaysAgo * 864e5).toISOString(),
+        last_review: new Date(now - lastDaysAgo * 864e5).toISOString(),
+      },
+    },
+  ];
+  const reviewBank = {
+    cards: [
+      { id: "kn:a:1", deck: "a", prompt: "A" },
+      { id: "kn:a:2", deck: "a", prompt: "B" },
+      { id: "kn:a:3", deck: "a", prompt: "C" },
+    ],
+    byId: new Map(),
+  };
+  reviewBank.byId = new Map(reviewBank.cards.map((c) => [c.id, c]));
+  const progress = new Map([
+    mk("kn:a:1", 2, 5), // overdue 2
+    mk("kn:a:2", 10, 12), // overdue 10 -> most at risk
+    mk("kn:a:3", -3, 4), // not due yet (negative overdue)
+  ]);
+  const rows = atRiskCards(reviewBank, progress, now, 8);
+  assert.equal(rows[0].id, "kn:a:2", "most overdue first");
+  assert.equal(rows[1].id, "kn:a:1");
+  assert.equal(rows[2].id, "kn:a:3");
+  assert.equal(rows[0].overdueDays, 10);
+  assert.equal(rows[1].daysSince, 5);
+});
+
+test("buildFortressSession: kn:-only, deduped, capped, kind by progress", async () => {
+  const { buildFortressSession } = await import("../app/views/review.js");
+  const now = new Date("2026-08-01T00:00:00Z");
+  const cards = [];
+  for (let i = 0; i < 60; i++) cards.push({ id: `kn:f:${i}`, deck: "f", prompt: "p", answer: "a", source: "s" });
+  const reviewBank = { cards, byId: new Map(cards.map((c) => [c.id, c])) };
+  const progress = new Map();
+  // one vocab word (must never appear) and a couple of seen kn: cards
+  progress.set("w0", grade(newProgress("w0", now), "good", now));
+  const past = new Date(now - 5 * 864e5);
+  progress.set("kn:f:0", grade(newProgress("kn:f:0", past), "good", past)); // due
+  const s = buildFortressSession(reviewBank, progress, now);
+  assert.ok(s.items.length > 0 && s.items.length <= 40, "capped at 40");
+  assert.ok(s.items.every((i) => i.id.startsWith("kn:")), "no vocab leak");
+  assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, "no duplicates");
+  assert.ok(s.items.some((i) => i.id === "kn:f:0" && i.kind === "review"), "seen card is a review");
+  const anIntro = s.items.find((i) => i.kind === "intro");
+  if (anIntro) assert.ok(!progress.has(anIntro.id), "intro cards are unseen");
+});

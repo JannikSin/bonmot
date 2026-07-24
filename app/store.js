@@ -165,6 +165,22 @@ function sanitizeMeta(raw) {
   out.flagged = Array.isArray(m.flagged)
     ? m.flagged.filter((v) => typeof v === "string").slice(0, 1000)
     : [];
+  // User-written memory hooks (device-local). Same distrust: only kn:
+  // string keys, string values, length- and count-capped so a crafted
+  // backup cannot wedge storage. Without this, export writes hooks but
+  // import drops them, silently wiping them on the very restore the
+  // export exists for.
+  out.hooks = {};
+  if (m.hooks && typeof m.hooks === "object") {
+    let n = 0;
+    for (const [k, v] of Object.entries(m.hooks)) {
+      if (n >= 2000) break;
+      if (typeof k === "string" && k.startsWith("kn:") && typeof v === "string" && v) {
+        out.hooks[k] = v.slice(0, 500);
+        n++;
+      }
+    }
+  }
   return out;
 }
 

@@ -7,9 +7,14 @@
 // Everything is precached on install so the very first offline open
 // (a no-signal train) already works.
 
-// BUMP this whenever anything under vendor/ or icons/ changes; those
-// paths are cache-first and will serve stale forever otherwise.
-const CACHE_VERSION = "bonmot-v5";
+// BUMP this on EVERY deploy that changes any shipped file. It is required
+// for vendor/ and icons/ (cache-first, else stale forever), but also for
+// app code: the ES module graph is unversioned, so a new install triggers
+// one atomic addAll(SHELL) that swaps every module together. Without the
+// bump, an interrupted post-deploy refresh (a train dipping in and out of
+// signal) can serve a new module and a stale one from network-first and
+// splice them, white-screening on a changed export. Bumping is always safe.
+const CACHE_VERSION = "bonmot-v6";
 
 const SHELL = [
   "./",

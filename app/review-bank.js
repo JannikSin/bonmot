@@ -86,6 +86,25 @@ export function searchDecks(summaries, query) {
   });
 }
 
+// Group deck summaries into their slash-delimited folder path, preserving
+// order: Map top -> { direct: [decks], subs: Map sub -> [decks] }. Shared
+// by the Review picker and the Map so the folder logic lives in one place.
+export function groupByFolder(decks) {
+  const tops = new Map();
+  for (const d of decks) {
+    const [top, sub] = (d.group || "Other").split("/");
+    if (!tops.has(top)) tops.set(top, { direct: [], subs: new Map() });
+    const t = tops.get(top);
+    if (sub) {
+      if (!t.subs.has(sub)) t.subs.set(sub, []);
+      t.subs.get(sub).push(d);
+    } else {
+      t.direct.push(d);
+    }
+  }
+  return tops;
+}
+
 // Cards on the fringe of forgetting: learning cards sorted by how long
 // past due they are (positive overdueDays), then by how long since you
 // last saw them. This is the "you have not seen this in two weeks, not
